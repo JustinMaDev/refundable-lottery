@@ -18,9 +18,9 @@ describe("ChipsToken", function () {
     return { chipsToken, owner, otherAccount };
   }
 
-  async function deployMockContract() {
-    const MockContract = await hardhat.ethers.getContractFactory("MockContract");
-    return await MockContract.deploy(chipsToken.getAddress());
+  async function deployMockLotteryContract() {
+    const MockLotteryContract = await hardhat.ethers.getContractFactory("MockLotteryContract");
+    return await MockLotteryContract.deploy(chipsToken.getAddress());
   }
 
   beforeEach(async function () {
@@ -76,7 +76,7 @@ describe("ChipsToken", function () {
   describe("Check minter logic", function () {
     let mockContract;
     beforeEach(async function () {
-      mockContract = await loadFixture(deployMockContract);
+      mockContract = await loadFixture(deployMockLotteryContract);
     });
 
     it("Add minter by non-owner", async function () {
@@ -145,9 +145,9 @@ describe("ChipsToken", function () {
   });
 
   describe("Check direct transfer logic", function () {
-    let mockContract;
+    let mockLotteryContract;
     beforeEach(async function () {
-      mockContract = await loadFixture(deployMockContract);
+      mockLotteryContract = await loadFixture(deployMockLotteryContract);
     });
 
     it("Invoke directTransferFrom from a invalid EOA", async function () {
@@ -157,15 +157,15 @@ describe("ChipsToken", function () {
 
     it("Invoke directTransferFrom from a non-minter contract", async function () {
       const amount = ethers.parseEther("100");
-      await expect(mockContract.invokeDirectTransferFrom(owner.address, otherAccount.address, amount)).to.be.revertedWith("Caller contract MUST be an authorized contract");
+      await expect(mockLotteryContract.invokeDirectTransferFrom(owner.address, otherAccount.address, amount)).to.be.revertedWith("Caller contract MUST be an authorized contract");
     });
 
     it("Invoke directTransferFrom from a minter contract", async function () {
-      await chipsToken.addMinter(mockContract.getAddress());
-      expect(await chipsToken.hasRole(MINTER_ROLE, mockContract.getAddress())).to.equal(true);
+      await chipsToken.addMinter(mockLotteryContract.getAddress());
+      expect(await chipsToken.hasRole(MINTER_ROLE, mockLotteryContract.getAddress())).to.equal(true);
 
       const amount = ethers.parseEther("100");
-      const tx = await mockContract.invokeDirectTransferFrom(owner.address, otherAccount.address, amount);
+      const tx = await mockLotteryContract.invokeDirectTransferFrom(owner.address, otherAccount.address, amount);
       const receipt = await tx.wait();
       metrix.push({Operation: "invokeDirectTransferFrom", GasUsed: receipt.gasUsed});
 
@@ -176,12 +176,12 @@ describe("ChipsToken", function () {
     });
 
     it("Invoke directTransferFrom revert if balance not sufficent ", async function () {
-      await chipsToken.addMinter(mockContract.getAddress());
-      expect(await chipsToken.hasRole(MINTER_ROLE, mockContract.getAddress())).to.equal(true);
+      await chipsToken.addMinter(mockLotteryContract.getAddress());
+      expect(await chipsToken.hasRole(MINTER_ROLE, mockLotteryContract.getAddress())).to.equal(true);
 
       await chipsToken.transfer(otherAccount.address, ethers.parseEther("100"));
 
-      await expect(mockContract.connect(otherAccount).invokeDirectTransferFrom(otherAccount.address, owner.address, ethers.parseEther("200"))).to.be.reverted;
+      await expect(mockLotteryContract.connect(otherAccount).invokeDirectTransferFrom(otherAccount.address, owner.address, ethers.parseEther("200"))).to.be.reverted;
     });
   });
 });
