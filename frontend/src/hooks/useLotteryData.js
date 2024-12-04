@@ -26,15 +26,15 @@ const useLotteryData = () => {
     
     const RoundState = ["Upcoming", "Playing", "ReadyToRoll", "Rolling", "ReadyToDraw", "Ended"];
     const stateTipsMap = [
-      "Current round is not started yet. Please wait for the round to start.",
-      "Current round is playing. You can buy tickets using ETH or CHIPS.",
-      "You can click this button and roll the dice, and you will get Chips as reward.",
-      "Current round is rolling. Plesae wait for the result.",
-      "You can click this button and draw the lottery for winner(s), and you will get Chips as reward.",
-      "Current round is ended. Please wait for next round."
+      "UpcomingTips",
+      "PlayingTips",
+      "ReadyToRollTips",
+      "RollingTips",
+      "ReadyToDrawTips",
+      "EndedTips"
     ];
 
-    const [roundBtnText, setRoundBtnText] = useState("Round:");
+    const [roundNumber, setRoundNumber] = useState("0");
     const [countdownKey, setCountdownKey] = useState(0);
     const [countdownDate, setCountdownDate] = useState(new Date().getTime());
     const [ticketCount, setTicketCount] = useState(0);
@@ -75,7 +75,7 @@ const useLotteryData = () => {
 
         const curState = await lotteryContract.methods.getCurRoundState().call();
         setCurRoundState(RoundState[curState]);
-        setRoundBtnText(`Round ${roundNumber}: ${RoundState[curState]}`);
+        setRoundNumber(roundNumber.toString());
         setStateTips(stateTipsMap[curState]);
         setCountdownDate(new Date().getTime() + Number(restSecond)*1000);
         setCountdownKey(countdownKey+1);
@@ -145,7 +145,7 @@ const useLotteryData = () => {
     pollNewBlocks();
   }, [provider, isConnected]);
 
-  return { roundBtnText, countdownKey, countdownDate, ticketCount, 
+  return { roundNumber, countdownKey, countdownDate, ticketCount, 
     prizepool, ticketPriceInEther, ticketPriceInChips, holderEtherTickets, 
     holderChipsTickets, curRoundState, stateTips };
 };
