@@ -1,9 +1,12 @@
 {
     "welcome": "مرحبًا بك في اليانصيب القابل للاسترداد",
     "play": "لعب",
+
     "refundable_lottery": "اليانصيب القابل للاسترداد",
+    "go_to_github": "انتقل إلى GitHub وراجع كود العقد الذكي",
     "connect_wallet": "توصيل المحفظة",
     "wallet_connected": "تم توصيل المحفظة",
+
     "enter_round_number": "أدخل رقم الجولة",
     "round": "الجولة",
     "player": "اللاعب",
@@ -56,6 +59,13 @@
     "your_ether_tickets": "تذاكر الإيثر الخاصة بك",
     "your_chips_tickets": "تذاكر Chips الخاصة بك",
     "using": "يستخدم",
-    "fifty_percent_off_with_chips": "خصم 50٪ مع Chips"
+    "fifty_percent_off_with_chips": "خصم 50٪ مع Chips",
+
+    "go_to_blockchain_explorer": "انتقل إلى مستكشف البلوكشين وراجع كود العقد الذكي",
+    "go_to_twitter": "انتقل إلى Twitter/X وتابعنا",
+    "go_to_telegram": "انتقل إلى Telegram وانضم إلى مجموعتنا",
+    "go_to_facebook": "انتقل إلى Facebook وأعجب بصفحتنا",
+    "go_to_thread": "انتقل إلى Thread",
+    "go_to_discord": "انتقل إلى Discord وانضم إلى خادمنا"
   }
   

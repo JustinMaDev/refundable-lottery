@@ -1,9 +1,12 @@
 {
     "welcome": "Welcome to Refundable Lottery",
     "play": "Play",
+
     "refundable_lottery": "Refundable Lottery",
+    "go_to_github":"Go to Gitthub and review the smart contract code",
     "connect_wallet": "Connect Wallet",
     "wallet_connected": "Wallet Connected",
+
     "enter_round_number": "Enter round number",
     "round": "Round",
     "player": "Player",
@@ -60,5 +63,13 @@
     "your_chips_tickets": "Your chips tickets",
     "using": "Using",
     "fifty_percent_off_with_chips": "50% Off with Chips",
+
+    "go_to_blockchain_explorer": "Go to Blockchain Explorer and review the smart contract code",
+    "go_to_twitter": "Go to Twitter/X and follow us",
+    "go_to_telegram": "Go to Telegram and join our group",
+    "go_to_facebook": "Go to Facebook and like our page",
+    "go_to_thread": "Go to thread",
+    "go_to_discord": "Go to Discord and join our server",
+    
     "":""
 }

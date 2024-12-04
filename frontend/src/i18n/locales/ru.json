@@ -1,9 +1,12 @@
 {
     "welcome": "Добро пожаловать в возвратную лотерею",
     "play": "Играть",
+
     "refundable_lottery": "Возвратная лотерея",
+    "go_to_github": "Перейдите на GitHub и просмотрите код смарт-контракта",
     "connect_wallet": "Подключить кошелек",
     "wallet_connected": "Кошелек подключен",
+
     "enter_round_number": "Введите номер раунда",
     "round": "Раунд",
     "player": "Игрок",
@@ -56,6 +59,13 @@
     "your_ether_tickets": "Ваши билеты на эфир",
     "your_chips_tickets": "Ваши билеты Chips",
     "using": "Использование",
-    "fifty_percent_off_with_chips": "50% скидка с Chips"
+    "fifty_percent_off_with_chips": "50% скидка с Chips",
+
+    "go_to_blockchain_explorer": "Перейдите в блокчейн-эксплорер и проверьте код смарт-контракта",
+    "go_to_twitter": "Перейдите в Twitter/X и подпишитесь на нас",
+    "go_to_telegram": "Перейдите в Telegram и присоединяйтесь к нашей группе",
+    "go_to_facebook": "Перейдите в Facebook и поставьте лайк нашей странице",
+    "go_to_thread": "Перейти в Thread",
+    "go_to_discord": "Перейдите в Discord и присоединяйтесь к нашему серверу"
   }
   

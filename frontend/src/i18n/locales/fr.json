@@ -1,9 +1,12 @@
 {
     "welcome": "Bienvenue à la loterie remboursable",
     "play": "Jouer",
+
     "refundable_lottery": "Loterie remboursable",
+    "go_to_github": "Allez sur GitHub pour examiner le code du contrat intelligent",
     "connect_wallet": "Connecter le portefeuille",
     "wallet_connected": "Portefeuille connecté",
+
     "enter_round_number": "Entrez le numéro du tour",
     "round": "Tour",
     "player": "Joueur",
@@ -56,6 +59,13 @@
     "your_ether_tickets": "Vos billets Ether",
     "your_chips_tickets": "Vos billets Chips",
     "using": "En utilisant",
-    "fifty_percent_off_with_chips": "50 % de réduction avec Chips"
+    "fifty_percent_off_with_chips": "50 % de réduction avec Chips",
+
+    "go_to_blockchain_explorer": "Allez sur l'explorateur blockchain et examinez le code du contrat intelligent",
+    "go_to_twitter": "Allez sur Twitter/X et suivez-nous",
+    "go_to_telegram": "Allez sur Telegram et rejoignez notre groupe",
+    "go_to_facebook": "Allez sur Facebook et aimez notre page",
+    "go_to_thread": "Allez sur Thread",
+    "go_to_discord": "Allez sur Discord et rejoignez notre serveur"
   }
   

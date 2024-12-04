@@ -1,9 +1,12 @@
 {
     "welcome": "Willkommen bei der erstattungsfähigen Lotterie",
     "play": "Spielen",
+
     "refundable_lottery": "Erstattungsfähige Lotterie",
+    "go_to_github": "Gehen Sie zu GitHub und überprüfen Sie den Smart Contract-Code",
     "connect_wallet": "Wallet verbinden",
     "wallet_connected": "Wallet verbunden",
+
     "enter_round_number": "Rundennummer eingeben",
     "round": "Runde",
     "player": "Spieler",
@@ -56,6 +59,13 @@
     "your_ether_tickets": "Ihre Ether-Tickets",
     "your_chips_tickets": "Ihre Chips-Tickets",
     "using": "Verwendung",
-    "fifty_percent_off_with_chips": "50 % Rabatt mit Chips"
+    "fifty_percent_off_with_chips": "50 % Rabatt mit Chips",
+
+    "go_to_blockchain_explorer": "Gehen Sie zum Blockchain-Explorer und überprüfen Sie den Smart-Contract-Code",
+    "go_to_twitter": "Gehen Sie zu Twitter/X und folgen Sie uns",
+    "go_to_telegram": "Gehen Sie zu Telegram und treten Sie unserer Gruppe bei",
+    "go_to_facebook": "Gehen Sie zu Facebook und liken Sie unsere Seite",
+    "go_to_thread": "Gehen Sie zu Thread",
+    "go_to_discord": "Gehen Sie zu Discord und treten Sie unserem Server bei"
   }
   
