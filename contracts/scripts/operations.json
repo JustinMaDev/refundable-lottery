@@ -1,0 +1,34 @@
+[
+    {
+        "name": "ChipsToken",
+        "type": "deploy_",
+        "description": "Deploy ChipsToken contract",
+        "args": [
+            "ChipsToken",
+            "CHIPS"
+        ],
+        "value": "0x0"
+    },
+    {
+        "name": "RefundableLottery",
+        "type": "deploy",
+        "description": "Deploy RefundableLottery contract",
+        "args": [
+            "$subscriptionId",
+            "$chainlinkVRF",
+            "$keyHash",
+            "$ChipsToken"
+        ],
+        "value": "0x0"
+    },
+    {
+        "name": "ChipsToken",
+        "type": "call_",
+        "function": "addMinter",
+        "description": "Add RefundableLottery contract as minter of ChipsToken",
+        "args": [
+            "$RefundableLottery"
+        ],
+        "value": "0x0"
+    }
+]

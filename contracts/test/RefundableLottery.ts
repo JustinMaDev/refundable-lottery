@@ -6,7 +6,7 @@ import hardhat, { network } from "hardhat";
 import { any } from "hardhat/internal/core/params/argumentTypes";
 
 describe("RefundableLottery", function () {
-  let chipsToken, mockVRFCoordinator, refundableLottery, owner, playerA, playerB, playerC;
+  let chipsToken, refundableLottery, owner, playerA, playerB, playerC;
   const metrix = [];
 
   async function deployRefundableLottery() {
@@ -14,13 +14,12 @@ describe("RefundableLottery", function () {
     const ChipsToken = await hardhat.ethers.getContractFactory("ChipsToken");
     const chipsToken = await ChipsToken.deploy("ChipsToken", "CHIPS");
 
-    const MockVRFCoordinator = await hardhat.ethers.getContractFactory("MockVRFCoordinator");
-    const mockVRFCoordinator = await MockVRFCoordinator.deploy();
+    const RefundableLottery = await hardhat.ethers.getContractFactory("RefundableLotteryForTest");
+    const keyHash = "0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c";
+    const fakeVrsCoordinator = playerC;
+    const refundableLottery = await RefundableLottery.deploy(0, fakeVrsCoordinator, keyHash, chipsToken.getAddress());
 
-    const RefundableLottery = await hardhat.ethers.getContractFactory("RefundableLottery");
-    const refundableLottery = await RefundableLottery.deploy(0, mockVRFCoordinator.getAddress(), chipsToken.getAddress());
-
-    return { chipsToken, mockVRFCoordinator, refundableLottery, owner, playerA, playerB, playerC };
+    return { chipsToken, refundableLottery, owner, playerA, playerB, playerC };
   }
 
   async function timeFlow(blocks) {
@@ -38,7 +37,6 @@ describe("RefundableLottery", function () {
   beforeEach(async function () {
     const fixture = await loadFixture(deployRefundableLottery);
     chipsToken = fixture.chipsToken;
-    mockVRFCoordinator = fixture.mockVRFCoordinator;
     refundableLottery = fixture.refundableLottery;
     owner = fixture.owner;
     playerA = fixture.playerA;
@@ -56,9 +54,6 @@ describe("RefundableLottery", function () {
     });
     it("Check manager", async function () {
       expect(await refundableLottery.manager()).to.equal(owner.address);
-    });
-    it("Check vrf coordinator", async function () {
-      expect(await refundableLottery.vrfCoordinatorAddr()).to.equal(await mockVRFCoordinator.getAddress());
     });
   });
 
@@ -119,7 +114,7 @@ describe("RefundableLottery", function () {
       const receipt = await tx.wait();
       metrix.push({ Operation : "buyTicketWithChips", Gas : receipt.gasUsed });
 
-      const ticketPrice = await refundableLottery.TICKET_PRICE_IN_CHIPS();
+      const ticketPrice = await refundableLottery.getDiscountedPriceInChips();
       expect(await chipsToken.balanceOf(playerA.address)).to.equal(parseEther("1000") - ticketPrice);
       expect(await chipsToken.balanceOf(refundableLottery.getAddress())).to.equal(ticketPrice);
     });
@@ -149,20 +144,16 @@ describe("RefundableLottery", function () {
       const prizePool = ticketPrice - toBigInt(ticketPrice*managementFeeRate)/toBigInt(100);
       const balanceBefore = await refundableLottery.runner?.provider?.getBalance(playerA.address);
 
-      const txDraw = await refundableLottery.drawLottery();
-      const receiptDraw = await txDraw.wait();
-      await timeFlow(refundableLottery.requestConfirmations());
-
-      const tx = await mockVRFCoordinator.testDrawLottert(ticketNumber);
+      const tx = await refundableLottery.drawLotteryForTest(ticketNumber);
       const receipt = await tx.wait();
-      metrix.push({ Operation : "DrawLottery for Ether Winner", Gas : receipt.gasUsed + receiptDraw.gasUsed });
+      metrix.push({ Operation : "DrawLottery for Ether Winner", Gas : receipt.gasUsed });
       await expect(tx)
-        .to.emit(refundableLottery, "DrawLottoryEther")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizePool)
+        .to.emit(refundableLottery, "DrawLottory")
+        .withArgs(roundNumber, ticketNumber, playerA.address, prizePool, false)
         .to.emit(refundableLottery, "RoundEnded")
-        .withArgs(roundNumber, ticketNumber, ticketNumber, anyValue, 1)
+        .withArgs(roundNumber, ticketNumber, 1)
         .to.emit(refundableLottery, "RoundStarted")
-        .withArgs(roundNumber + toBigInt(1), anyValue);
+        .withArgs(roundNumber + toBigInt(1));
 
       const balanceAfter = await refundableLottery.runner?.provider?.getBalance(playerA.address);
       expect(balanceAfter - balanceBefore).to.equal(prizePool);
@@ -185,7 +176,7 @@ describe("RefundableLottery", function () {
 
       const roundNumber = await refundableLottery.roundNumber();
       const managementFeeRate = await refundableLottery.MANAGEMENT_FEE_RATE();
-      const ticketPriceInChips = await refundableLottery.TICKET_PRICE_IN_CHIPS();
+      const ticketPriceInChips = await refundableLottery.getDiscountedPriceInChips();
       
       const prizePoolEther = ticketPriceInEther - toBigInt(ticketPriceInEther*managementFeeRate)/toBigInt(100);
       const prizePoolChips = ticketPriceInChips - toBigInt(ticketPriceInChips*managementFeeRate)/toBigInt(100);
@@ -197,21 +188,17 @@ describe("RefundableLottery", function () {
       const ownerEtherBalanceBefore = await refundableLottery.runner?.provider?.getBalance(owner.address);
       const ownerChipsBalanceBefore = await chipsToken.balanceOf(owner.address);
 
-      const txDraw = await refundableLottery.connect(playerB).drawLottery();
-      const receiptDraw = await txDraw.wait();
-      await timeFlow(refundableLottery.requestConfirmations());
-
-      const tx = await mockVRFCoordinator.connect(playerB).testDrawLottert(ticketNumber);
+      const tx = await refundableLottery.connect(playerB).drawLotteryForTest(ticketNumber);
       const receipt = await tx.wait();
-      metrix.push({ Operation : "DrawLottery for Chips Winner", Gas : receipt.gasUsed + receiptDraw.gasUsed });
+      metrix.push({ Operation : "DrawLottery for Chips Winner", Gas : receipt.gasUsed });
 
       await expect(tx)
-        .to.emit(refundableLottery, "DrawLottoryEther")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizePoolEther)
-        .to.emit(refundableLottery, "DrawLottoryChips")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizePoolChips)
+        .to.emit(refundableLottery, "DrawLottory")
+        .withArgs(roundNumber, ticketNumber, playerA.address, prizePoolEther, false)
+        .to.emit(refundableLottery, "DrawLottory")
+        .withArgs(roundNumber, ticketNumber, playerA.address, prizePoolChips, true)
         .to.emit(refundableLottery, "RoundEnded")
-        .withArgs(roundNumber, ticketNumber, ticketNumber, anyValue, 1)
+        .withArgs(roundNumber, ticketNumber, 1)
 
       const etherBalanceAfter = await refundableLottery.runner?.provider?.getBalance(playerA.address);
       const chipsBalanceAfter = await chipsToken.balanceOf(playerA.address);
@@ -242,7 +229,7 @@ describe("RefundableLottery", function () {
 
       const roundNumber = await refundableLottery.roundNumber();
       const managementFeeRate = await refundableLottery.MANAGEMENT_FEE_RATE();
-      const ticketPriceInChips = await refundableLottery.TICKET_PRICE_IN_CHIPS();
+      const ticketPriceInChips = await refundableLottery.getDiscountedPriceInChips();
       
       const prizePoolEther = toBigInt(2)*(ticketPriceInEther - toBigInt(ticketPriceInEther*managementFeeRate)/toBigInt(100));
       const prizePoolChips = ticketPriceInChips - toBigInt(ticketPriceInChips*managementFeeRate)/toBigInt(100);
@@ -258,22 +245,19 @@ describe("RefundableLottery", function () {
       const ownerEtherBalanceBefore = await refundableLottery.runner?.provider?.getBalance(owner.address);
       const ownerChipsBalanceBefore = await chipsToken.balanceOf(owner.address);
 
-      await refundableLottery.connect(playerC).drawLottery();
-      await timeFlow(refundableLottery.requestConfirmations());
-
-      const tx = await mockVRFCoordinator.connect(playerC).testDrawLottert(ticketNumber);
+      const tx = await refundableLottery.connect(playerC).drawLotteryForTest(ticketNumber);
       const receipt = await tx.wait();
       await expect(tx)  
-        .to.emit(refundableLottery, "DrawLottoryEther")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizeEther)
-        .to.emit(refundableLottery, "DrawLottoryChips")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizeChips)
-        .to.emit(refundableLottery, "DrawLottoryEther")
-        .withArgs(roundNumber, ticketNumber, playerB.address, prizeEther)
-        .to.emit(refundableLottery, "DrawLottoryChips")
-        .withArgs(roundNumber, ticketNumber, playerB.address, prizeChips)
+        .to.emit(refundableLottery, "DrawLottory")
+        .withArgs(roundNumber, ticketNumber, playerA.address, prizeEther, false)
+        .to.emit(refundableLottery, "DrawLottory")
+        .withArgs(roundNumber, ticketNumber, playerA.address, prizeChips, true)
+        .to.emit(refundableLottery, "DrawLottory")
+        .withArgs(roundNumber, ticketNumber, playerB.address, prizeEther, false)
+        .to.emit(refundableLottery, "DrawLottory")
+        .withArgs(roundNumber, ticketNumber, playerB.address, prizeChips, true)
         .to.emit(refundableLottery, "RoundEnded")
-        .withArgs(roundNumber, ticketNumber, ticketNumber, anyValue, 2)
+        .withArgs(roundNumber, ticketNumber, 2)
 
       const winnerAEtherBalanceAfter = await refundableLottery.runner?.provider?.getBalance(playerA.address);
       const winnerAChipsBalanceAfter = await chipsToken.balanceOf(playerA.address);
@@ -309,21 +293,17 @@ describe("RefundableLottery", function () {
       const managementFeeRate = await refundableLottery.MANAGEMENT_FEE_RATE();
       const prizePool = toBigInt(ticketCount)*(ticketPriceInEther - toBigInt(ticketPriceInEther*managementFeeRate)/toBigInt(100));
       const balanceBefore = await refundableLottery.runner?.provider?.getBalance(playerA.address);
-      
-      const txDraw = await refundableLottery.drawLottery();
-      const receiptDraw = await txDraw.wait();
-      await timeFlow(refundableLottery.requestConfirmations());
 
-      const tx = await mockVRFCoordinator.testDrawLottert(ticketNumber);
+      const tx = await refundableLottery.drawLotteryForTest(ticketNumber);
       const receipt = await tx.wait();
-      metrix.push({ Operation : `DrawLottery for ${ticketCount} Ether Winner`, Gas : receipt.gasUsed + receiptDraw.gasUsed });
+      metrix.push({ Operation : `DrawLottery for ${ticketCount} Ether Winner`, Gas : receipt.gasUsed });
       await expect(tx)
-        .to.emit(refundableLottery, "DrawLottoryEther")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizePool/toBigInt(ticketCount))
+        .to.emit(refundableLottery, "DrawLottory")
+        .withArgs(roundNumber, ticketNumber, playerA.address, prizePool/toBigInt(ticketCount), false)
         .to.emit(refundableLottery, "RoundEnded")
-        .withArgs(roundNumber, ticketNumber, ticketNumber, anyValue, ticketCount)
+        .withArgs(roundNumber, ticketNumber, ticketCount)
         .to.emit(refundableLottery, "RoundStarted")
-        .withArgs(roundNumber + toBigInt(1), anyValue);
+        .withArgs(roundNumber + toBigInt(1));
 
       const balanceAfter = await refundableLottery.runner?.provider?.getBalance(playerA.address);
       expect(balanceAfter - balanceBefore).to.equal(prizePool);
@@ -350,28 +330,24 @@ describe("RefundableLottery", function () {
       await timeFlowToRoundEnd();
 
       const managementFeeRate = await refundableLottery.MANAGEMENT_FEE_RATE();
-      const ticketPriceInChips = await refundableLottery.TICKET_PRICE_IN_CHIPS();
+      const ticketPriceInChips = await refundableLottery.getDiscountedPriceInChips();
       const prizePoolEther = toBigInt(ticketCount)*(ticketPriceInEther - toBigInt(ticketPriceInEther*managementFeeRate)/toBigInt(100));
       const prizePoolChips = toBigInt(ticketCount)*(ticketPriceInChips - toBigInt(ticketPriceInChips*managementFeeRate)/toBigInt(100));
       const balanceBefore = await refundableLottery.runner?.provider?.getBalance(playerA.address);
       const chipsBalanceBefore = await chipsToken.balanceOf(playerA.address);
 
-      const txDraw = await refundableLottery.connect(playerB).drawLottery();
-      const receiptDraw = await txDraw.wait();
-      await timeFlow(refundableLottery.requestConfirmations());
-
-      const tx = await mockVRFCoordinator.connect(playerB).testDrawLottert(ticketNumber);
+      const tx = await refundableLottery.connect(playerB).drawLotteryForTest(ticketNumber);
       const receipt = await tx.wait();
-      metrix.push({ Operation : `DrawLottery for ${ticketCount} Chips Winners`, Gas : receipt.gasUsed + receiptDraw.gasUsed });
+      metrix.push({ Operation : `DrawLottery for ${ticketCount} Chips Winners`, Gas : receipt.gasUsed });
       await expect(tx)
-        .to.emit(refundableLottery, "DrawLottoryEther")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizePoolEther/toBigInt(ticketCount))
-        .to.emit(refundableLottery, "DrawLottoryChips")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizePoolChips/toBigInt(ticketCount))
+        .to.emit(refundableLottery, "DrawLottory")
+        .withArgs(roundNumber, ticketNumber, playerA.address, prizePoolEther/toBigInt(ticketCount), false)
+        .to.emit(refundableLottery, "DrawLottory")
+        .withArgs(roundNumber, ticketNumber, playerA.address, prizePoolChips/toBigInt(ticketCount), true)
         .to.emit(refundableLottery, "RoundEnded")
-        .withArgs(roundNumber, ticketNumber, ticketNumber, anyValue, ticketCount)
+        .withArgs(roundNumber, ticketNumber, ticketCount)
         .to.emit(refundableLottery, "RoundStarted")
-        .withArgs(roundNumber + toBigInt(1), anyValue);
+        .withArgs(roundNumber + toBigInt(1));
 
       const balanceAfter = await refundableLottery.runner?.provider?.getBalance(playerA.address);
       const chipsBalanceAfter = await chipsToken.balanceOf(playerA.address);
@@ -441,9 +417,7 @@ describe("RefundableLottery", function () {
       
       await timeFlowToRoundEnd();
 
-      await refundableLottery.connect(playerB).drawLottery();
-      await timeFlow(refundableLottery.requestConfirmations());
-      await mockVRFCoordinator.connect(playerB).testDrawLottert(ticketNumber);
+      await refundableLottery.connect(playerB).drawLotteryForTest(ticketNumber);
 
       await expect(refundableLottery.refundEther(roundNumber))
       .to.be.revertedWith("The prize pool of this round has been taken by the winner(s)");
@@ -460,9 +434,7 @@ describe("RefundableLottery", function () {
       await timeFlowToRoundEnd();
 
       const roundNumber = await refundableLottery.roundNumber();
-      await refundableLottery.connect(playerB).drawLottery();
-      await timeFlow(refundableLottery.requestConfirmations());
-      await mockVRFCoordinator.connect(playerB).testDrawLottert(ticketNumber);
+      await refundableLottery.connect(playerB).drawLotteryForTest(ticketNumber);
 
       await expect(refundableLottery.connect(playerA).refundChips(roundNumber))
       .to.be.revertedWith("The prize pool of this round has been taken by the winner(s)");
@@ -475,9 +447,7 @@ describe("RefundableLottery", function () {
       const roundNumber = await refundableLottery.roundNumber();
       await timeFlowToRoundEnd();
 
-      await refundableLottery.connect(playerA).drawLottery();
-      await timeFlow(refundableLottery.requestConfirmations());
-      await mockVRFCoordinator.connect(playerA).testDrawLottert(6551);
+      await refundableLottery.connect(playerA).drawLotteryForTest(6551);
 
       const managementFeeRate = await refundableLottery.MANAGEMENT_FEE_RATE();
       const managementFee = toBigInt(ticketPriceInEther*managementFeeRate)/toBigInt(100);
@@ -493,8 +463,8 @@ describe("RefundableLottery", function () {
       metrix.push({ Operation : "RefundEther", Gas : receipt.gasUsed });
 
       await expect(tx)
-        .to.emit(refundableLottery, "RefundEther")
-        .withArgs(roundNumber, owner.address, refundAmount);
+        .to.emit(refundableLottery, "Refund")
+        .withArgs(roundNumber, owner.address, refundAmount, false);
 
       const balanceAfter = await refundableLottery.runner?.provider?.getBalance(owner.address);
       const chipsBalanceAfter = await chipsToken.balanceOf(owner.address);
@@ -513,12 +483,10 @@ describe("RefundableLottery", function () {
       const roundNumber = await refundableLottery.roundNumber();
       await timeFlowToRoundEnd();
 
-      await refundableLottery.connect(playerB).drawLottery();
-      await timeFlow(refundableLottery.requestConfirmations());
-      await mockVRFCoordinator.connect(playerB).testDrawLottert(6552);
+      await refundableLottery.connect(playerB).drawLotteryForTest(6552);
 
       const managementFeeRate = await refundableLottery.MANAGEMENT_FEE_RATE();
-      const ticketPriceInChips = await refundableLottery.TICKET_PRICE_IN_CHIPS();
+      const ticketPriceInChips = await refundableLottery.getDiscountedPriceInChips();
       const refundAmount = ticketPriceInChips - toBigInt(ticketPriceInChips*managementFeeRate)/toBigInt(100);
       const balanceBefore = await chipsToken.balanceOf(playerA.address);
 
@@ -527,8 +495,8 @@ describe("RefundableLottery", function () {
       metrix.push({ Operation : "RefundChips", Gas : receipt.gasUsed });
 
       await expect(tx)
-        .to.emit(refundableLottery, "RefundChips")
-        .withArgs(roundNumber, playerA.address, refundAmount);
+        .to.emit(refundableLottery, "Refund")
+        .withArgs(roundNumber, playerA.address, refundAmount, true);
 
       const balanceAfter = await chipsToken.balanceOf(playerA.address);
       
@@ -547,9 +515,7 @@ describe("RefundableLottery", function () {
       }
       const roundNumber = await refundableLottery.roundNumber();
       await timeFlowToRoundEnd();
-      await refundableLottery.connect(playerB).drawLottery();
-      await timeFlow(refundableLottery.requestConfirmations());
-      await mockVRFCoordinator.connect(playerB).testDrawLottert(100);
+      await refundableLottery.connect(playerB).drawLotteryForTest(100);
 
       const managementFeeRate = await refundableLottery.MANAGEMENT_FEE_RATE();
       const managementFee = toBigInt(ticketCount)*toBigInt(ticketPriceInEther*managementFeeRate)/toBigInt(100);
@@ -568,8 +534,8 @@ describe("RefundableLottery", function () {
       const chipsBalanceAfter = await chipsToken.balanceOf(playerA.address);
 
       await expect(tx)
-        .to.emit(refundableLottery, "RefundEther")
-        .withArgs(roundNumber, playerA.address, refundAmount);
+        .to.emit(refundableLottery, "Refund")
+        .withArgs(roundNumber, playerA.address, refundAmount, false);
 
       expect(balanceAfter - balanceBefore).to.equal(refundAmount - transactionCost);  
       expect(chipsBalanceAfter - chipsBalanceBefore).to.equal(chipsReward);
@@ -597,12 +563,10 @@ describe("RefundableLottery", function () {
       const roundNumber = await refundableLottery.roundNumber();
       await timeFlowToRoundEnd();
 
-      await refundableLottery.connect(playerB).drawLottery();
-      await timeFlow(refundableLottery.requestConfirmations());
-      await mockVRFCoordinator.connect(playerB).testDrawLottert(100);
+      await refundableLottery.connect(playerB).drawLotteryForTest(100);
 
       const managementFeeRate = await refundableLottery.MANAGEMENT_FEE_RATE();
-      const ticketPriceInChips = await refundableLottery.TICKET_PRICE_IN_CHIPS();
+      const ticketPriceInChips = await refundableLottery.getDiscountedPriceInChips();
       const refundAmount = toBigInt(ticketCount)*(ticketPriceInChips - toBigInt(ticketPriceInChips*managementFeeRate)/toBigInt(100));
       const balanceBefore = await chipsToken.balanceOf(playerA.address);
 
@@ -611,8 +575,8 @@ describe("RefundableLottery", function () {
       metrix.push({ Operation : `RefundChips for ${ticketCount} chips tickets`, Gas : receipt.gasUsed });
 
       await expect(tx)
-        .to.emit(refundableLottery, "RefundChips")
-        .withArgs(roundNumber, playerA.address, refundAmount);
+        .to.emit(refundableLottery, "Refund")
+        .withArgs(roundNumber, playerA.address, refundAmount, true);
 
       const balanceAfter = await chipsToken.balanceOf(playerA.address);
       

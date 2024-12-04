@@ -1,24 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
+import "./RefundableLottery.sol";
 
-interface IChipsToken {
-    function mint(address to, uint256 amount) external;
-    function directTransferFrom(address from, address to, uint256 amount) external;
-}
-
-interface IFakeVRFCoordinator {
-  function requestRandomWords(
-    bytes32 keyHash,
-    uint64 subId,
-    uint16 minimumRequestConfirmations,
-    uint32 callbackGasLimit,
-    uint32 numWords
-  ) external returns (uint256 requestId);
-}
-
-interface IConsumer {
-  function invokeFulfillRandomWords(uint requestId, uint256[] memory randomWords) external;
-}
 contract MockLotteryContract {
     IChipsToken public chipsToken;
 
@@ -35,31 +18,12 @@ contract MockLotteryContract {
     }
 }
 
-contract MockVRFCoordinator is IFakeVRFCoordinator {
-  IConsumer public consumer;
-  uint public requestId = 1000;
+contract RefundableLotteryForTest is RefundableLottery {
+  constructor(uint256 _subscriptionId, address _vrf, bytes32 _keyHash, address _chipsToken) 
+    RefundableLottery(_subscriptionId, _vrf, _keyHash, _chipsToken) {
+    }
 
-  function requestRandomWords(
-    bytes32 keyHash,
-    uint64 subId,
-    uint16 minimumRequestConfirmations,
-    uint32 callbackGasLimit,
-    uint32 numWords
-  ) external override returns (uint256) {
-    keyHash;
-    subId;
-    minimumRequestConfirmations;
-    callbackGasLimit;
-    numWords;
-    requestId += 1;
-    consumer = IConsumer(msg.sender);
-    return requestId;
-  }
-
-
-  function testDrawLottert(uint jackpotNum) public {
-    uint256[] memory randomWords = new uint256[](1);
-    randomWords[0] = jackpotNum;
-    consumer.invokeFulfillRandomWords(requestId, randomWords);
+  function drawLotteryForTest(uint _jackpotNum)public{
+    drawLotteryInternal(_jackpotNum);
   }
 }

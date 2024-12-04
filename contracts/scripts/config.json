@@ -1,0 +1,17 @@
+{
+    "mainnet": {
+      "deployer": "0x2FeDe04FBd5658Fb1299FB584E4a1D2b4887DF89",
+      "subscriptionId": "",
+      "linkToken": "",
+      "chainlinkVRF": "0xD7f86b4b8Cae7D942340FF628F82735b7a20893a",
+      "keyHash": "0x8077df514608a09f83e4e8d300645594e5d7234665448ba83f51a50f842bd3d9"
+    },
+    "sepolia": {
+      "deployer": "0x2FeDe04FBd5658Fb1299FB584E4a1D2b4887DF89",
+      "ChipsToken": "0xb83956605fafe2f43f81c07fd204a9275cfc0272",
+      "subscriptionId": "$BigNum:4454806936378628531152356302634748269478694115059885189985304810641742666034",
+      "linkToken": "0x779877A7B0D9E8603169DdbD7836e478b4624789",
+      "chainlinkVRF": "0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B",
+      "keyHash":"0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae"
+    }
+  }
