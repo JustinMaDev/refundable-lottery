@@ -28,7 +28,7 @@ const TicketHistory = () => {
   }, [allTickets, playerTickets, playerRefund, winnerList, rollingRecords, activeTab]);
 
   return (
-    <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg mr-2 ml-2">
+    <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg ml-2">
       {/* Tabs */}
       <div className="tabs">
         <button
