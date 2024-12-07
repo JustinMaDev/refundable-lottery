@@ -97,10 +97,10 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
   IChipsToken public chipsToken;
 
   event RoundStarted(uint indexed roundNumber);
-  event BuyTicket(address indexed player, uint indexed roundNumber, uint ticketNumber, uint amount, bool inChips);
+  event BuyTicket(uint indexed roundNumber, address indexed player, uint ticketNumber, uint amount, bool inChips);
   event LotteryRolling(uint indexed roundNumber, uint requestId, address roller);
   event LotteryDrawing(uint indexed roundNumber, uint requestId, uint chainlinkResult, uint jackpotNumber);
-  event DrawLottory(uint indexed roundNumber, uint jackpotNumber, address winner, uint amount, bool inChips);
+  event DrawLottery(uint indexed roundNumber, uint jackpotNumber, address winner, uint amount, bool inChips);
   event RoundEnded(uint indexed roundNumber, uint jackpotNumber, uint winnerCount);
   event Refund( uint indexed roundNumber, address indexed player, uint refundAmount, bool inChips);
 
@@ -143,7 +143,7 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
     roundEtherBalance[roundNumber] += msg.value;
     
     etherPurchaseCount[roundNumber] += 1;
-    emit BuyTicket(msg.sender, roundNumber, _ticketNumber, msg.value, false);
+    emit BuyTicket( roundNumber, msg.sender, _ticketNumber, msg.value, false);
   }
 
   function buyTicketWithChips(uint _ticketNumber) public {
@@ -166,7 +166,7 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
     chipsToken.directTransferFrom(msg.sender, address(this), discountedPriceInChips);
     roundChipsBalance[roundNumber] += discountedPriceInChips;
 
-    emit BuyTicket(msg.sender, roundNumber, _ticketNumber, discountedPriceInChips, true);
+    emit BuyTicket(roundNumber, msg.sender, _ticketNumber, discountedPriceInChips, true);
   }
       
   //Any player can call this function to trigger the draw operation.
@@ -247,11 +247,11 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
 
       for(uint i = 0; i < ticketHolders[roundNumber][_jackpotNum].length; i++){
         payable(ticketHolders[roundNumber][_jackpotNum][i]).transfer(winnerEther);
-        emit DrawLottory(roundNumber, _jackpotNum, ticketHolders[roundNumber][_jackpotNum][i], winnerEther, false);
+        emit DrawLottery(roundNumber, _jackpotNum, ticketHolders[roundNumber][_jackpotNum][i], winnerEther, false);
         
         if(winnerChips > 0){
             require(chipsToken.transfer(ticketHolders[roundNumber][_jackpotNum][i], winnerChips), "The transfer of ChipsToken failed");
-            emit DrawLottory(roundNumber, _jackpotNum, ticketHolders[roundNumber][_jackpotNum][i], winnerChips, true);
+            emit DrawLottery(roundNumber, _jackpotNum, ticketHolders[roundNumber][_jackpotNum][i], winnerChips, true);
         }
       }
     }
@@ -329,5 +329,37 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
 
   function getDiscountedPriceInChips()public pure returns(uint){
     return TICKET_PRICE_IN_CHIPS * (100 - DISCOUNT_RATE) / 100;
+  }
+
+  function getGlobalConfig() public view returns(uint, uint, uint, uint, uint, uint, uint, uint, uint, uint, uint){
+    return (
+      MANAGEMENT_FEE_RATE, 
+      TICKET_PRICE_IN_ETHER, 
+      TICKET_NUMBER_RANGE, 
+      CHIPS_PRICE_PER_ETHER, 
+      DISCOUNT_RATE, 
+      TICKET_PRICE_IN_CHIPS,
+      MAX_PARTICIPATE_RATE_USING_CHIPS, 
+      ROUND_PERIOD, 
+      REWARD_CHIPS_FOR_OPERATOR,
+      roundNumber,
+      getDiscountedPriceInChips()
+    );
+  }
+
+  function getRoundDetail(uint _roundNumber) public view returns(RoundInfo memory, uint, uint, uint, uint, uint, uint){
+    if(_roundNumber == 0){
+      _roundNumber = roundNumber;
+    }
+
+    return (
+      roundInfos[_roundNumber],
+      etherPurchaseCount[_roundNumber],
+      chipsPurchaseCount[_roundNumber],
+      holderEtherPurchaseCount[_roundNumber][msg.sender],
+      holderChipsPurchaseCount[_roundNumber][msg.sender],
+      roundEtherBalance[_roundNumber],
+      roundChipsBalance[_roundNumber]
+    );
   }
 }

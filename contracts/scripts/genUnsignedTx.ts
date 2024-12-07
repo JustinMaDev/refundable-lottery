@@ -52,9 +52,9 @@ async function genDeploymentTx(operation) {
     value: operation.value,
     data: unsignedTx.data,
     gasLimit: ethers.toBeHex(gasEstimate),
-    //gasPrice: ethers.toBeHex(feeData.gasPrice),
-    maxFeePerGas: ethers.toBeHex(feeData.maxFeePerGas),
-    maxPriorityFeePerGas: ethers.toBeHex(feeData.maxPriorityFeePerGas*ethers.toBigInt(2)),
+    gasPrice: ethers.toBeHex(feeData.gasPrice),
+    //maxFeePerGas: ethers.toBeHex(feeData.maxFeePerGas),
+    //maxPriorityFeePerGas: ethers.toBeHex(feeData.maxPriorityFeePerGas),
     nonce: ethers.toBeHex(env.nonce),
     chainId: ethers.toBeHex(hardhat.network.config.chainId),
   };
