@@ -102,7 +102,7 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
   event LotteryDrawing(uint indexed roundNumber, uint requestId, uint chainlinkResult, uint jackpotNumber);
   event DrawLottery(uint indexed roundNumber, uint jackpotNumber, address winner, uint etherAmount, uint chipsAmount);
   event RoundEnded(uint indexed roundNumber, uint jackpotNumber, uint winnerCount);
-  event Refund( uint indexed roundNumber, address indexed player, uint refundAmount, bool inChips);
+  event Refund( uint indexed roundNumber, address indexed player, uint refundEtherAmount, uint refundChipsAmount);
 
   // The gas lane to use, which specifies the maximum gas price to bump to.
   // For a list of available gas lanes on each network,
@@ -222,26 +222,23 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
   }
 
   function drawLotteryInternal(uint _jackpotNum) internal {
-    //If there is no player in this round, nothing to do and start the next round.
-    if(roundEtherBalance[roundNumber] == 0){
-        return;
+    //1. Charge the management fee
+    if(roundEtherBalance[roundNumber] > 0){
+      //The manager of the contract take the management fee (1% of the deposit balance).
+      uint managementFeeEther = roundEtherBalance[roundNumber] * MANAGEMENT_FEE_RATE / 100;
+      roundEtherBalance[roundNumber] -= managementFeeEther;
+      manager.transfer(managementFeeEther);
+
+      uint managementFeeChips = roundChipsBalance[roundNumber] * MANAGEMENT_FEE_RATE / 100;
+      roundChipsBalance[roundNumber] -= managementFeeChips;
+      chipsToken.transfer(manager, managementFeeChips);
     }
-
-    //The manager of the contract take the management fee (1% of the deposit balance).
-    uint managementFeeEther = roundEtherBalance[roundNumber] * MANAGEMENT_FEE_RATE / 100;
-    roundEtherBalance[roundNumber] -= managementFeeEther;
-    manager.transfer(managementFeeEther);
-
-    uint managementFeeChips = roundChipsBalance[roundNumber] * MANAGEMENT_FEE_RATE / 100;
-    roundChipsBalance[roundNumber] -= managementFeeChips;
-    chipsToken.transfer(manager, managementFeeChips);
-
-    //The winners could be more than ONE player and they will share the ether/chips in the current round.
+    
+    //2. Dispatch the prize, The winners could be more than ONE player and they will share the ether/chips in the current round.
     uint winnerCount = ticketHolders[roundNumber][_jackpotNum].length;
     if(winnerCount > 0){
       uint winnerEther = roundEtherBalance[roundNumber] / winnerCount;
       uint winnerChips = roundChipsBalance[roundNumber] / winnerCount;
-      
       roundEtherBalance[roundNumber] = 0;
       roundChipsBalance[roundNumber] = 0;
 
@@ -255,25 +252,22 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
       }
     }
 
+    //3. Set the round state to ENDED
     roundInfos[roundNumber].winnerCount = winnerCount;
     roundInfos[roundNumber].state = RoundState.ENDED;
     emit RoundEnded(roundNumber, _jackpotNum, winnerCount);
 
-    //The next round will not start until the current round is drawn.
+    //4. Start the next round
     roundNumber += 1;
     roundInfos[roundNumber].state = RoundState.PLAYING;
     roundInfos[roundNumber].startBlockNumber = block.number;
     emit RoundStarted(roundNumber);
   }
 
-  function refundEther(uint _previousRoundNumber) public  {
-    require(roundInfos[_previousRoundNumber].state == RoundState.ENDED, "You can not refund a round which is not completed");
-    require(roundInfos[_previousRoundNumber].winnerCount == 0, "The prize pool of this round has been taken by the winner(s)");
-    
-    //A player can refund all the tickets he/she holds in the previous round as long as there is no winner in that round.
+  function refundEtherInternal(uint _previousRoundNumber) internal returns(uint){
     uint ticketsCount = playerEtherPurchaseCount[_previousRoundNumber][msg.sender];
     if(ticketsCount == 0){
-      return;
+      return 0;
     }
     delete playerEtherPurchaseCount[_previousRoundNumber][msg.sender];
 
@@ -282,23 +276,18 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
     require(address(this).balance >= refundAmount, "The contract balance is not enough for refund");
     roundEtherBalance[_previousRoundNumber] -= refundAmount;
     payable(msg.sender).transfer(refundAmount);
-    
-    emit Refund(_previousRoundNumber, msg.sender, refundAmount, false);
 
     //As player paid 1% management fee when playing the game, the player will get equivalent ChipsToken when refunding.
     //For example, if a player paid 0.01 ether for a ticket, the management fee is 0.01 * 1% = 0.0001 ether.
     //As the price of chips token is 1 ether == 1000 chips, the player will get 0.0001 * 1000 = 0.1 chips when refunding.
     chipsToken.mint(msg.sender, ticketsCount * TICKET_PRICE_IN_ETHER * MANAGEMENT_FEE_RATE * CHIPS_PRICE_PER_ETHER/100 );
+    return refundAmount;
   }
 
-  function refundChips(uint _previousRoundNumber) public {
-    require(roundInfos[_previousRoundNumber].state == RoundState.ENDED, "You can not refund a round which is not completed");
-    require(roundInfos[_previousRoundNumber].winnerCount == 0, "The prize pool of this round has been taken by the winner(s)");
-    
-    //A player can refund all the tickets he/she holds in the previous round as long as there is no winner in that round.
+  function refundChipsInternal(uint _previousRoundNumber) internal returns(uint){
     uint ticketsCount = playerChipsPurchaseCount[_previousRoundNumber][msg.sender];
     if(ticketsCount == 0){
-        return;
+        return 0;
     }
     delete playerChipsPurchaseCount[_previousRoundNumber][msg.sender];
 
@@ -309,13 +298,19 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
     roundChipsBalance[_previousRoundNumber] -= refundAmount;
     require(chipsToken.transfer(msg.sender, refundAmount), "The transfer of ChipsToken failed");
     
-    emit Refund(_previousRoundNumber, msg.sender, refundAmount, true);
     //The player will NOT get extra ChipsToken when refunding chips token.
+    return refundAmount;
   }
 
   function refund(uint _previousRoundNumber) public{
-    refundEther(_previousRoundNumber);
-    refundChips(_previousRoundNumber);
+    //A player can refund all the tickets he/she holds in the previous round as long as there is no winner in that round.
+    require(roundInfos[_previousRoundNumber].state == RoundState.ENDED, "You can not refund a round which is not completed");
+    require(roundInfos[_previousRoundNumber].winnerCount == 0, "The prize pool of this round has been taken by the winner(s)");
+    
+    uint refundEtherAmount = refundEtherInternal(_previousRoundNumber);
+    uint refundChipsAmount = refundChipsInternal(_previousRoundNumber);
+
+    emit Refund(_previousRoundNumber, msg.sender, refundEtherAmount, refundChipsAmount);
   }
 
   function getCurRoundState()public view returns(RoundState){
