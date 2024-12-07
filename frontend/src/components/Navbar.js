@@ -30,30 +30,18 @@ function Navbar() {
       </div>
 
       {/* Connect Wallet Button */}
-      <div className="ml-auto">
-        {isConnected ? (
+      <div className="ml-auto gap-2 ml-4">
+        <button className="flex items-center space-x-4 p-0 bg-transparent border-none hover:opacity-80"
+          onClick={handleConnectWallet}
+        >
           <span className="ext-primary cursor-pointer text-lg font-medium">
-            {t("wallet_connected")}
+            {t(isConnected ? "wallet_connected" : "connect_wallet")}
           </span>
-        ) : (
-          <span
-            className="text-primary cursor-pointer text-lg font-medium hover:underline"
-            onClick={handleConnectWallet}
-          >
-            {t("connect_wallet")}
-          </span>
-        )}
-      </div>
-      <div className="flex items-center gap-2 ml-4">
-        <button className="flex items-center space-x-4 p-0 bg-transparent border-none hover:opacity-80">
-          <img
-            src="/walletconnect.png"
-            alt="walletconnect Logo"
-            className="w-10 h-6"
-            title={t("connect_wallet")} 
-          />
+          <img src="/walletconnect.png" className="w-10 h-6" title={t("connect_wallet")}/>
         </button>
       </div>
+
+      {/* Language Switcher */}
       <LanguageSwitcher className="ml-4" />
     </div>
   );

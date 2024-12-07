@@ -13,7 +13,7 @@ const LotteryDashboard = () => {
 
   const { roundNumber, countdownKey, countdownDate, ticketCount, 
     prizepool, ticketPriceInEther, ticketPriceInChips, holderEtherTickets,
-    holderChipsTickets, curRoundState, stateTips } = useLotteryData();
+    holderChipsTickets, curRoundState, stateTips, ticketMaxNumber, chipsDiscount  } = useLotteryData();
 
   const github = "https://github.com";
   const blockchainExplorer = "https://bscscan.com";
@@ -64,6 +64,7 @@ const LotteryDashboard = () => {
 
   return (
     <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg max-w-3xl  ml-2 h-[calc(100vh-5rem)]">
+      {/* Round State Button And Rules Tutton */}
       <div className="flex items-center justify-between mb-4">
         <button 
           className="btn btn-outline tooltip tooltip-right"
@@ -83,7 +84,7 @@ const LotteryDashboard = () => {
         </div>
       </div>
 
-      {/* Info Section */}
+      {/* Round Info Section */}
       <div className="grid grid-cols-2 gap-4 mb-8">
         <div className="text-center">
           <h3 className="text-gray-400 text-sm">{t("ticket_price")}</h3>
@@ -115,7 +116,7 @@ const LotteryDashboard = () => {
       </div>
 
       <div className="flex justify-around items-center bg-gray-800 p-4 rounded-lg mb-8">
-        <NumberInput onChange={(value)=>{setLuckyNumber(value)}}/>
+        <NumberInput onChange={(value)=>{setLuckyNumber(value)}} maxNumber={ticketMaxNumber}/>
       </div>
       
       <div className="flex items-center justify-between">
@@ -132,6 +133,8 @@ const LotteryDashboard = () => {
           {t("fifty_percent_off_with_chips")}
         </button>
       </div>
+
+      {/* Social Media Links Buttons*/}
       <div className="flex flex-wrap justify-evenly items-center mt-16 gap-4 w-full">
         <a href={github} target="_blank" rel="noopener noreferrer">
           <img src="/github-mark-white.png" alt="Github" className="w-6 h-6 " title={t("go_to_github")} />

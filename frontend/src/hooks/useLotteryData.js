@@ -46,37 +46,48 @@ const useLotteryData = () => {
   const [ticketPriceInChips, setTicketPriceInChips] = useState(0);
   const [holderEtherTickets, setHolderEtherTickets] = useState(0);
   const [holderChipsTickets, setHolderChipsTickets] = useState(0);
-  const [curRoundState, setCurRoundState] = useState("");
-  const [stateTips, setStateTips] = useState("");
-  
+  const [curRoundState, setCurRoundState] = useState("Upcoming");
+  const [stateTips, setStateTips] = useState("UpcomingTips");
+  const [ticketMaxNumber, setTicketMaxNumber] = useState(0);
+  const [chipsDiscount, setChipsDiscount] = useState(0);
 
-  const fetchRoundData = async () => {
+  let roundPeriod = BigInt(0);
+  const fetchGlobalConfig = async () => {
     try {
       if (!provider || !isConnected) return;
       const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
-
+      
       const globalConfig = await lotteryContract.getGlobalConfig();
       const managmentFee = globalConfig[0];
       const priceInEther = globalConfig[1];
       const ticketNumberRange = globalConfig[2];
       const chipsPricePerEther = globalConfig[3];
-      const chipsDiscount = globalConfig[4];
+      const chipsDiscountRate = globalConfig[4];
       const priceInChips = globalConfig[5];
       const maxParticipateRateInChips = globalConfig[6];
-      const roundPeriod = globalConfig[7];
-      //TODO roundNumber = globalConfig[9];
+      roundPeriod = globalConfig[7];
+      
+      const priceInChipsFormat = ethers.utils.formatUnits(priceInChips, 'ether');
+      setTicketPriceInEther(`${ethers.utils.formatUnits(priceInEther.toString(), 'ether')}ETH`);
+      setTicketPriceInChips(`${parseFloat(priceInChipsFormat).toFixed(0)}CHIP`);
+      setChipsDiscount(chipsDiscountRate);
+      setTicketMaxNumber(ticketNumberRange);
+    } catch (error) {
+      console.error("Error fetching global config:", error);
+    }
+  };
+  
+  const fetchCurRoundData = async () => {
+    try {
+      if (!provider || !isConnected) return;
+      const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
 
       //Get current round data
       const roundDetail = await lotteryContract.getRoundDetail(0);
-      const roundInfo = roundDetail[0];
-      const etherPurchaseCount = roundDetail[1];
-      const chipsPurchaseCount = roundDetail[2];
-      const holderEtherPurchaseCount = roundDetail[3];
-      const holderChipsPurchaseCount = roundDetail[4];
-      const roundEtherBalance = roundDetail[5];
-      const roundChipsBalance = roundDetail[6];
+      const roundNumber = roundDetail.roundNumber;
+      const roundInfo = roundDetail.info;
+      const curState = roundDetail.realtimeState;
 
-      const roundNumber = await lotteryContract.roundNumber();
       const curBlockNumber = await provider.getBlockNumber();
       const averageBlockTime = await getAverageBlockTimeMs(provider, curBlockNumber, 10);
       let restSecond = 0;
@@ -85,23 +96,19 @@ const useLotteryData = () => {
         restSecond = endBlockNumber.sub(curBlockNumber).mul(averageBlockTime);
       }
       console.log("restSecond!!!:", restSecond.toString());
-      const roundEther = ethers.utils.formatUnits(roundEtherBalance, 'ether');
-      const roundChips = ethers.utils.formatUnits(roundChipsBalance, 'ether');
-      const priceInChipsFormat = ethers.utils.formatUnits(priceInChips, 'ether');
+      const roundEther = ethers.utils.formatUnits(roundDetail.roundEtherBalance, 'ether');
+      const roundChips = ethers.utils.formatUnits(roundDetail.roundChipsBalance, 'ether');
       
-      const curState = await lotteryContract.getCurRoundState();
       setCurRoundState(RoundState[curState]);
-      setRoundNumber(roundNumber.toString());
+      setRoundNumber(roundDetail.roundNumber.toString());
       setStateTips(stateTipsMap[curState]);
       setCountdownDate(new Date().getTime() + Number(restSecond));
-      setCountdownKey(roundNumber);
-      setTicketCount(`${etherPurchaseCount.toString()} + ${chipsPurchaseCount.toString()}`);
-      setPrizepool(`${roundEther}ETH+${ parseFloat(roundChips).toFixed(0)}CHIPS`);
-      setTicketPriceInEther(`${ethers.utils.formatUnits(priceInEther.toString(), 'ether')}ETH`);
-      setTicketPriceInChips(`${parseFloat(priceInChipsFormat).toFixed(0)}CHIPS`);
+      setCountdownKey(roundDetail.roundNumber);
+      setTicketCount(`${roundDetail.etherPurchaseCount.toString()} + ${roundDetail.chipsPurchaseCount.toString()}`);
+      setPrizepool(`${roundEther}ETH+${ parseFloat(roundChips).toFixed(0)}CHIP`);
       
-      setHolderEtherTickets(holderEtherPurchaseCount.toString());
-      setHolderChipsTickets(holderChipsPurchaseCount.toString());
+      setHolderEtherTickets(roundDetail.playerEtherPurchaseCount.toString());
+      setHolderChipsTickets(roundDetail.playerChipsPurchaseCount.toString());
     } catch (error) {
       console.error("Error fetching lottery data:", error);
     }
@@ -113,16 +120,16 @@ const useLotteryData = () => {
         const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
         
         await lotteryContract.on(lotteryContract.filters.RoundStarted(), async () => {
-          fetchRoundData();
+          fetchCurRoundData();
         });
         await lotteryContract.on(lotteryContract.filters.LotteryRolling(), async () => {
-          fetchRoundData();
+          fetchCurRoundData();
         });
         await lotteryContract.on(lotteryContract.filters.LotteryDrawing(), async () => {
-          fetchRoundData();
+          fetchCurRoundData();
         });
         await lotteryContract.on("BuyTicket", async ()=>{
-          fetchRoundData();
+          fetchCurRoundData();
         });
       } catch (error) {
         console.error("Error fetching past events:", error);
@@ -145,14 +152,15 @@ const useLotteryData = () => {
       }, 12000); //Poll every 12 seconds
     };
 
-    fetchRoundData();
+    fetchGlobalConfig();
+    fetchCurRoundData();
     listenEvent();
     pollNewBlocks();
-  }, [provider, isConnected]);
+  }, [provider, isConnected, account]);
 
   return { roundNumber, countdownKey, countdownDate, ticketCount, 
     prizepool, ticketPriceInEther, ticketPriceInChips, holderEtherTickets, 
-    holderChipsTickets, curRoundState, stateTips, fetchRoundData };
+    holderChipsTickets, curRoundState, stateTips, ticketMaxNumber, chipsDiscount };
 };
 
 export default useLotteryData;

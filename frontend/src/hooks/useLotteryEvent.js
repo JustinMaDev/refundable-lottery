@@ -28,7 +28,7 @@ function formatRefundEvent(event) {
   return {
     roundNumber: event.args.roundNumber.toString(),
     player: shortenAddress(event.args.player),
-    refundAmount: ethers.utils.formatUnits(event.args.refundAmount, "ether") + (event.args.inChips ? " Chips" : " ETH"),
+    refundAmount: ethers.utils.formatUnits(event.args.refundAmount, "ether") + (event.args.inChips ? " CHIP" : " ETH"),
     blockNumber: event.blockNumber.toString(),
     txLink: Contract.NETWORK.blockExplorerTx + event.transactionHash,
     addrLink: Contract.NETWORK.blockExplorerAddress + event.args.player,
@@ -36,12 +36,14 @@ function formatRefundEvent(event) {
 }
 
 function formatWinnerEvent(event) {
+  const etherAmount = ethers.utils.formatUnits(event.args.etherAmount, "ether");
+  const chipsAmount = ethers.utils.formatUnits(event.args.chipsAmount, "ether");
   return {
     roundNumber: event.args.roundNumber.toString(),
     jackpotNumber: "🥇" + event.args.jackpotNumber.toString(),
     jackpotNumberHex: `(0x${ethers.utils.hexlify(event.args.jackpotNumber).slice(2).toUpperCase()})`,
     winner: shortenAddress(event.args.winner),
-    amount: ethers.utils.formatUnits(event.args.amount, "ether") + (event.args.inChips ? " Chips" : " ETH"),
+    amount: `${etherAmount}ETH + ${chipsAmount}CHIP`,
     blockNumber: event.blockNumber.toString(),
     txLink: Contract.NETWORK.blockExplorerTx + event.transactionHash,
     addrLink: Contract.NETWORK.blockExplorerAddress + event.args.winner,
@@ -49,11 +51,6 @@ function formatWinnerEvent(event) {
 }
 
 function formatRollingRecord(event) {
-  if(event.args === undefined){
-    console.log("event.args is undefined", event);
-    return {};
-  }
-
   return {
     roundNumber: event.args.roundNumber.toString(),
     requestId: shortenAddress(event.args.requestId.toString(), 4, 4),
@@ -127,7 +124,10 @@ const PastEventsViewer = () => {
           const formattedEvent = formatRefundEvent(event);
           setPlayerRefund((prevEvents) => [formattedEvent, ...prevEvents]);
         });
-        await lotteryContract.on("DrawLottery", (roundNumber, jackpotNumber, winner, amount, inChips, event) => {
+        await lotteryContract.on("DrawLottery", (roundNumber, jackpotNumber, winner, etherAmount, chipsAmount, event) => {
+          
+          console.log("DrawLottery!!!!!!!!!!!!!!!!!!!!!!!!!!!!", formattedEvent);
+          
           const formattedEvent = formatWinnerEvent(event);
           setWinnerList((prevEvents) => [formattedEvent, ...prevEvents]);
         });

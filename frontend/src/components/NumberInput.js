@@ -1,7 +1,7 @@
 import { parse } from "postcss";
 import React, { useState } from "react";
 
-const NumberInput = ({onChange}) => {
+const NumberInput = ({onChange, maxNumber}) => {
   const [isHex, setIsHex] = useState(false);
   const [value, setValue] = useState("");
 
@@ -12,10 +12,10 @@ const NumberInput = ({onChange}) => {
       if (!hexRegex.test(input)) return false;
       
       const num = parseInt(input, 16);
-      return num >= 0x0000 && num <= 0xFFFF;
+      return num >= 0x0000 && num <= maxNumber;
     } else {
       const num = parseInt(input, 10);
-      return !isNaN(num) && num >= 0 && num <= 65535;
+      return !isNaN(num) && num >= 0 && num <= maxNumber;
     }
   };
 
@@ -42,13 +42,20 @@ const NumberInput = ({onChange}) => {
     setIsHex(!isHex);
   };
 
+  function generateHexRangeString(max) {
+    const maxNumber = Number(max).toString(16).toUpperCase();
+    const minValue = "0".padStart(maxNumber.length, "0");
+    const maxValue = "F".repeat(maxNumber.length);
+    return `${minValue} ~ ${maxValue}`;
+  }
+
   return (
     <div className="flex gap-4">
       <input
         type="text"
         value={value}
         onChange={handleInputChange}
-        placeholder={isHex ? "0000 ~ FFFF" : "0 ~ 65535"}
+        placeholder={isHex ? `${generateHexRangeString(maxNumber)}` : `0 ~ ${maxNumber}`}
         className="flex-1 border border-gray-500 rounded px-4 py-2 text-lg text-white bg-black"
       />
       <label className="flex items-center gap-2 text-white">

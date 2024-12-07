@@ -8,7 +8,6 @@ const LanguageSwitcher = ({className}) => {
     i18n.changeLanguage(event.target.value);
   };
 
-  console.log("i18n.language", i18n.language);
   return (
     <div className={`w-30 ${ className }`} >
       <select
