@@ -59,7 +59,7 @@ export const Contract = {
   
   RefundableLottery:{
     contractName:RefundableLotteryAbi.contractName,
-    address: "0x48ccb41f6321eafaeb75bce37abd362a53a879b1",
+    address: "0x4605de5402a18870095b987644b8594047272278",
     creationBlockNumber: 7193618,
     abi:RefundableLotteryAbi.abi,
     _instance: null,

@@ -119,13 +119,13 @@ const useLotteryData = () => {
         if (!provider || !isConnected) return;
         const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
         
-        await lotteryContract.on(lotteryContract.filters.RoundStarted(), async () => {
+        await lotteryContract.on("RoundStarted", async () => {
           fetchCurRoundData();
         });
-        await lotteryContract.on(lotteryContract.filters.LotteryRolling(), async () => {
+        await lotteryContract.on("LotteryRolling", async () => {
           fetchCurRoundData();
         });
-        await lotteryContract.on(lotteryContract.filters.LotteryDrawing(), async () => {
+        await lotteryContract.on("LotteryDrawing", async () => {
           fetchCurRoundData();
         });
         await lotteryContract.on("BuyTicket", async ()=>{

@@ -25,10 +25,12 @@ function formatBuyTicketEvent(event) {
 }
 
 function formatRefundEvent(event) {
+  const refundEtherAmount = ethers.utils.formatUnits(event.args.refundAmount, "ether");
+  const refundChipsAmount = ethers.utils.formatUnits(event.args.chipsAmount, "ether");
   return {
     roundNumber: event.args.roundNumber.toString(),
     player: shortenAddress(event.args.player),
-    refundAmount: ethers.utils.formatUnits(event.args.refundAmount, "ether") + (event.args.inChips ? " CHIP" : " ETH"),
+    refundAmount: `${refundEtherAmount}ETH + ${refundChipsAmount}CHIP`,
     blockNumber: event.blockNumber.toString(),
     txLink: Contract.NETWORK.blockExplorerTx + event.transactionHash,
     addrLink: Contract.NETWORK.blockExplorerAddress + event.args.player,
@@ -120,14 +122,11 @@ const PastEventsViewer = () => {
           const formattedEvent = formatRollingRecord(event);
           setRollingRecords((prevEvents) => [formattedEvent, ...prevEvents]);
         });
-        await lotteryContract.on("Refund", (roundNumber, player, refundAmount, inChips, event) => {
+        await lotteryContract.on("Refund", (roundNumber, player, refundEtherAmount, refundChipsAmount, event) => {
           const formattedEvent = formatRefundEvent(event);
           setPlayerRefund((prevEvents) => [formattedEvent, ...prevEvents]);
         });
         await lotteryContract.on("DrawLottery", (roundNumber, jackpotNumber, winner, etherAmount, chipsAmount, event) => {
-          
-          console.log("DrawLottery!!!!!!!!!!!!!!!!!!!!!!!!!!!!", formattedEvent);
-          
           const formattedEvent = formatWinnerEvent(event);
           setWinnerList((prevEvents) => [formattedEvent, ...prevEvents]);
         });
