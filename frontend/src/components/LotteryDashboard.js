@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import Countdown from "react-countdown";
 import {Contract, useWeb3} from '../contract';
 import useLotteryData from '../hooks/useLotteryData';
 import NumberInput from "./NumberInput";
 import RulePortal from "./RulePortal";
 import { useTranslation } from "react-i18next";
+import RuntimeErrorPortal from "./RuntimeErrorPortal";
 
 const LotteryDashboard = () => {
   const { t, i18n } = useTranslation();
@@ -23,6 +24,8 @@ const LotteryDashboard = () => {
   const thread = "https://thread.com";
   const discord = "https://discord.com";
 
+  const runtimeErrorPortalRef = useRef();
+
   const handleOperation = async () => {
     if (!provider || !isConnected) return;
     try {
@@ -34,7 +37,7 @@ const LotteryDashboard = () => {
         await lotteryContract.drawLottery();
       }
     } catch (error) {
-      console.error("Failed to buy ticket with ether:", error);
+      runtimeErrorPortalRef.current.open(error);
     }
   };
 
@@ -48,7 +51,7 @@ const LotteryDashboard = () => {
         value: priceInEther,
       });
     } catch (error) {
-      console.error("Failed to buy ticket with ether:", error);
+      runtimeErrorPortalRef.current.open(error);
     }
   };
 
@@ -58,7 +61,7 @@ const LotteryDashboard = () => {
       const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
       await lotteryContract.buyTicketWithChips(luckyNumber);
     } catch (error) {
-      console.error("Failed to buy ticket with chips:", error);
+      runtimeErrorPortalRef.current.open(error);
     }
   };
 
@@ -75,6 +78,8 @@ const LotteryDashboard = () => {
         </button>
         <RulePortal />
       </div>
+
+      <RuntimeErrorPortal ref={runtimeErrorPortalRef} />
 
       {/* Countdown Timer */}
       <div className="text-center mb-8">

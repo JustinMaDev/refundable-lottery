@@ -25,8 +25,8 @@ function formatBuyTicketEvent(event) {
 }
 
 function formatRefundEvent(event) {
-  const refundEtherAmount = ethers.utils.formatUnits(event.args.refundAmount, "ether");
-  const refundChipsAmount = ethers.utils.formatUnits(event.args.chipsAmount, "ether");
+  const refundEtherAmount = ethers.utils.formatUnits(event.args.refundEtherAmount, "ether");
+  const refundChipsAmount = ethers.utils.formatUnits(event.args.refundChipsAmount, "ether");
   return {
     roundNumber: event.args.roundNumber.toString(),
     player: shortenAddress(event.args.player),
