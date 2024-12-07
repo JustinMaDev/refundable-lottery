@@ -1,5 +1,5 @@
 import {  createContext, useContext, useState, useEffect } from 'react';
-import Web3 from 'web3';
+import {ethers} from 'ethers';
 
 const Web3Context = createContext();
 
@@ -13,13 +13,15 @@ export function Web3Wrapper({ children }) {
     if (window.ethereum) {
       try {
         await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const web3 = new Web3(window.ethereum);
-        setProvider(web3);
+        const ethersProvider = new ethers.providers.Web3Provider(window.ethereum);
+        setProvider(ethersProvider);
 
-        const accounts = await web3.eth.getAccounts();
-        setAccount(accounts[0]);
+        const ethersSigner = ethersProvider.getSigner();
+        const address = await ethersSigner.getAddress();
+        setAccount(address);
 
-        setChainId(await web3.eth.getChainId());
+        const network = await ethersProvider?.getNetwork();
+        setChainId(network.chainId);
         
         setIsConnected(true);
       } catch (error) {

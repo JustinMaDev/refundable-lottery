@@ -1,4 +1,5 @@
 import RefundableLotteryAbi from './RefundableLottery.json'
+import {ethers} from 'ethers';
 
 const ETHEREUM_MAINNET = {
   chainId: '0x1',
@@ -28,33 +29,46 @@ const BINANCE_TESTNET = {
 
 const TARGET_NETWORK = ETHEREUM_SEPOLIA;
 
+async function _createInstance(contractConfig, provider) {
+  const signer = provider?.getSigner();
+  const network = await provider?.getNetwork();
+  if (network?.chainId !== parseInt(Contract.NETWORK.chainId, 16)) {
+    console.error("ChainId not match, please switch to correct network, current chainId: ", network?.chainId, 
+                  " contract ", contractConfig.contractName, " was deployed on chain: ", Contract.NETWORK.chainId);
+    return null;
+  }
+  contractConfig._instance = new ethers.Contract(contractConfig.address, contractConfig.abi, signer);
+  return contractConfig._instance;
+}
+
+async function _getInstance(contractConfig, provider) {
+  if(contractConfig._instance){
+    return contractConfig._instance;
+  }
+  if (!contractConfig._instancePromise) {
+    contractConfig._instancePromise = _createInstance(contractConfig, provider);
+  }
+
+  contractConfig._instance = await contractConfig._instancePromise;
+  contractConfig._instancePromise = null;
+  return contractConfig._instance;
+}
+
 export const Contract = {
   NETWORK:TARGET_NETWORK,
   
   RefundableLottery:{
     contractName:RefundableLotteryAbi.contractName,
-    address: "0x2acc805ce5ed2695832eead1dd95e662f853f688",
+    address: "0xe22498c64709fe8b85dd755b5413a4a102602036",
     creationBlockNumber: 7193618,
     abi:RefundableLotteryAbi.abi,
     _instance: null,
-    getInstance:async function(web3){
-      return await Contract._getInstance(this, web3);
+    _instancePromise: null,
+    getInstance:async function(provider){
+      return await _getInstance(this, provider);
     }
   },
   
-  _getInstance: async function (contractConfig, web3) {
-    if (contractConfig._instance) {
-      return contractConfig._instance;
-    }
-    const chainId = await web3?.eth.getChainId();
-    if (parseInt(chainId) !== parseInt(Contract.NETWORK.chainId, 16)) {
-      console.error("ChainId not match, please switch to correct network, current chainId: ", chainId, 
-                    " contract ", contractConfig.contractName, " was deployed on chain: ", Contract.NETWORK.chainId);
-      return null;
-    }
-    contractConfig._instance = new web3.eth.Contract(contractConfig.abi, contractConfig.address);
-    return contractConfig._instance;
-  }
 }
 
 export { useWeb3, Web3Wrapper } from './useWeb3';

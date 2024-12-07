@@ -31,10 +31,10 @@ function App() {
       </div>
 
       <div className="flex flex-1 flex-col md:flex-row ">
-        <div className="bg-gray-800 flex-[3] p-1">
+        <div className="bg-gray-800 min-h-screen flex-[3] p-1">
           <LotteryDashboard />
         </div>
-        <div className="bg-gray-800 flex-[5] p-1">
+        <div className="bg-gray-800 min-h-screen flex-[5] p-1">
           <TicketHistory />
         </div>
       </div>

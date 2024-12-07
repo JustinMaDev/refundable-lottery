@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {Contract, useWeb3} from '../contract';
-import web3 from 'web3';
+import {ethers} from 'ethers';
 
 function shortenAddress(address, startLength = 6, endLength = 4) {
   if (!address || address.length < startLength + endLength) {
@@ -11,66 +11,62 @@ function shortenAddress(address, startLength = 6, endLength = 4) {
   return `${start}...${end}`;
 }
 
-async function formatBuyTicketEvent(event, lotteryContract) {
-  const roundEndedEvent = await lotteryContract.getPastEvents("RoundEnded", {
-    filter: { roundNumber: event.returnValues.roundNumber },
-    fromBlock: Contract.RefundableLottery.creationBlockNumber,
-    toBlock: "latest",
-  });
-  const isJackpot = roundEndedEvent.length > 0 && roundEndedEvent[0].returnValues.jackpotNumber === event.returnValues.ticketNumber;
-  
+function formatBuyTicketEvent(event) {
   return {
-    roundNumber: event.returnValues.roundNumber.toString(),
-    ticketNumber: (isJackpot ? "🥇" : "") + event.returnValues.ticketNumber.toString(),
-    ticketNumberHex: `(0x${web3.utils.toHex(event.returnValues.ticketNumber).slice(2).toUpperCase()})`,
-    player: shortenAddress(event.returnValues.player),
-    amount: web3.utils.fromWei(event.returnValues.amount, "ether")+ (event.returnValues.inChips ? " Chips" : " ETH"),
+    roundNumber: event.args.roundNumber.toString(),
+    ticketNumber: event.args.ticketNumber.toString(),
+    ticketNumberHex: `(0x${ethers.utils.hexlify(event.args.ticketNumber).slice(2).toUpperCase()})`,
+    player: shortenAddress(event.args.player),
+    amount: ethers.utils.formatUnits(event.args.amount, "ether")+ (event.args.inChips ? " Chips" : " ETH"),
     blockNumber: event.blockNumber.toString(),
-    timestamp: event.returnValues.timestamp,
     txLink: Contract.NETWORK.blockExplorerTx + event.transactionHash,
-    addrLink: Contract.NETWORK.blockExplorerAddress + event.returnValues.player,
+    addrLink: Contract.NETWORK.blockExplorerAddress + event.args.player,
   };
 }
 
 function formatRefundEvent(event) {
-  console.log("Refund event format:", event.returnValues.timestamp);
   return {
-    roundNumber: event.returnValues.roundNumber.toString(),
-    player: shortenAddress(event.returnValues.player),
-    refundAmount: web3.utils.fromWei(event.returnValues.refundAmount, "ether") + (event.returnValues.inChips ? " Chips" : " ETH"),
+    roundNumber: event.args.roundNumber.toString(),
+    player: shortenAddress(event.args.player),
+    refundAmount: ethers.utils.formatUnits(event.args.refundAmount, "ether") + (event.args.inChips ? " Chips" : " ETH"),
     blockNumber: event.blockNumber.toString(),
-    timestamp: event.returnValues.timestamp,
     txLink: Contract.NETWORK.blockExplorerTx + event.transactionHash,
-    addrLink: Contract.NETWORK.blockExplorerAddress + event.returnValues.player,
+    addrLink: Contract.NETWORK.blockExplorerAddress + event.args.player,
   };
 }
 
 function formatWinnerEvent(event) {
   return {
-    roundNumber: event.returnValues.roundNumber.toString(),
-    jackpotNumber: event.returnValues.jackpotNum.toString(), //TODO: jackpotNum => jackpotNumber
-    jackpotNumberHex: `(0x${web3.utils.toHex(event.returnValues.jackpotNum).slice(2).toUpperCase()})`,
-    winner: shortenAddress(event.returnValues.winner),
-    amount: web3.utils.fromWei(event.returnValues.amount, "ether") + (event.returnValues.inChips ? " Chips" : " ETH"),
+    roundNumber: event.args.roundNumber.toString(),
+    jackpotNumber: "🥇" + event.args.jackpotNumber.toString(),
+    jackpotNumberHex: `(0x${ethers.utils.hexlify(event.args.jackpotNumber).slice(2).toUpperCase()})`,
+    winner: shortenAddress(event.args.winner),
+    amount: ethers.utils.formatUnits(event.args.amount, "ether") + (event.args.inChips ? " Chips" : " ETH"),
     blockNumber: event.blockNumber.toString(),
     txLink: Contract.NETWORK.blockExplorerTx + event.transactionHash,
-    addrLink: Contract.NETWORK.blockExplorerAddress + event.returnValues.winner,
+    addrLink: Contract.NETWORK.blockExplorerAddress + event.args.winner,
   };
 }
 
 function formatRollingRecord(event) {
+  if(event.args === undefined){
+    console.log("event.args is undefined", event);
+    return {};
+  }
+
   return {
-    roundNumber: event.returnValues.roundNumber.toString(),
-    requestId: shortenAddress(event.returnValues.requestId.toString(), 4, 4),
-    fullRequestId: event.returnValues.requestId.toString(),
-    chainlinkResult: shortenAddress(web3.utils.toHex(event.returnValues.chainlinkResult), 4, 4),
-    fullChainlinkResult: web3.utils.toHex(event.returnValues.chainlinkResult),
-    jackpotNumber: event.returnValues.jackpotNumber.toString(),
-    jackpotNumberHex: `(0x${web3.utils.toHex(event.returnValues.jackpotNumber).slice(2).toUpperCase()})`,
+    roundNumber: event.args.roundNumber.toString(),
+    requestId: shortenAddress(event.args.requestId.toString(), 4, 4),
+    fullRequestId: event.args.requestId.toString(),
+    chainlinkResult: shortenAddress(ethers.utils.hexlify(event.args.chainlinkResult), 4, 4),
+    fullChainlinkResult: ethers.utils.hexlify(event.args.chainlinkResult),
+    jackpotNumber: event.args.jackpotNumber.toString(),
+    jackpotNumberHex: `(0x${ethers.utils.hexlify(event.args.jackpotNumber).slice(2).toUpperCase()})`,
     blockNumber: event.blockNumber.toString(),
     txLink: Contract.NETWORK.blockExplorerTx + event.transactionHash,
   };
 }
+
 const PastEventsViewer = () => {
   const { account, provider, isConnected} = useWeb3();
   const [allTickets, setAllTickets] = useState([]);
@@ -81,127 +77,74 @@ const PastEventsViewer = () => {
 
   useEffect(() => {
     if (!provider || !isConnected) return;
-    
+
     const fetchAllTickets = async () => {
       try{
         const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
-        const allBuyTicketEvents = await lotteryContract.getPastEvents("BuyTicket", {
-          fromBlock: Contract.RefundableLottery.creationBlockNumber,
-          toBlock: "latest",
+        let filter = lotteryContract.filters.LotteryDrawing();
+        const rollingRecords = await lotteryContract.queryFilter(filter);
+        const formatedEvents = rollingRecords.reverse().map((event) => {
+          return formatRollingRecord(event);
         });
-        
-        const formattedEvents = await Promise.all(
+        setRollingRecords(formatedEvents);
+
+        filter = lotteryContract.filters.BuyTicket();
+        const allBuyTicketEvents = await lotteryContract.queryFilter(filter);
+        const playerTickets = [];
+        const allTickets = await Promise.all(
           allBuyTicketEvents.reverse().map(async (event) => {
-            return await formatBuyTicketEvent(event, lotteryContract);
+            const formattedEvent = formatBuyTicketEvent(event);
+            if(event.args.player === account){
+              playerTickets.push(formattedEvent);
+            }
+            return formattedEvent;
           })
         );
-        setAllTickets(formattedEvents);
+        setAllTickets(allTickets);
+        setPlayerTickets(playerTickets);
 
-        lotteryContract.events.BuyTicket()
-          .on("data", async (event) => {
-            const formattedEvent = await formatBuyTicketEvent(event, lotteryContract);
-            setAllTickets((prevEvents) => [formattedEvent, ...prevEvents]);
-          });
+        filter = lotteryContract.filters.DrawLottery();
+        const winnerList = await lotteryContract.queryFilter(filter);
+        const formattedEvents = winnerList.reverse().map((event) => formatWinnerEvent(event));
+        setWinnerList(formattedEvents);
+
+        filter = lotteryContract.filters.Refund(null, account);
+        const curPlayerRefundEvents = await lotteryContract.queryFilter(filter);
+        setPlayerRefund(curPlayerRefundEvents.reverse().map((event) => formatRefundEvent(event)));
       }catch (error) {
         console.error("Error fetching past events:", error);
       }
     };
 
-    const fetchPlayerTockets = async () => {
+    async function listen(){
       try {
         const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
-        const curPlayerBuyTicketEvents = await lotteryContract.getPastEvents("BuyTicket", {
-          filter: { player: account},
-          fromBlock:Contract.RefundableLottery.creationBlockNumber,
-          toBlock: "latest",
+        await lotteryContract.on("LotteryDrawing", (roundNumber, requestId, chainlinkResult, jackpotNumber, event) => {
+          const formattedEvent = formatRollingRecord(event);
+          setRollingRecords((prevEvents) => [formattedEvent, ...prevEvents]);
         });
-        const formattedEvents = await Promise.all(
-          curPlayerBuyTicketEvents.reverse().map(async (event) => {
-            return await formatBuyTicketEvent(event, lotteryContract);
-          })
-        );
-        console.log("Player tickets:", formattedEvents); 
-        setPlayerTickets(formattedEvents);
-
-        lotteryContract.events.BuyTicket()
-          .on("data", async (event) => {
-            if (event.returnValues.player === account) {
-              const formattedEvent = await formatBuyTicketEvent(event, lotteryContract);
-              setPlayerTickets((prevEvents) => [formattedEvent, ...prevEvents]);
-            }
-          });
-      } catch (error) {
-        console.error("Error fetching past events:", error);
-      }
-    };
-
-    const fetchPlayerRefund = async () => {
-      try {
-        const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
-        const curPlayerRefundEvents = await lotteryContract.getPastEvents("Refund", {
-          filter: { player: account},
-          fromBlock:Contract.RefundableLottery.creationBlockNumber,
-          toBlock: "latest",
+        await lotteryContract.on("Refund", (roundNumber, player, refundAmount, inChips, event) => {
+          const formattedEvent = formatRefundEvent(event);
+          setPlayerRefund((prevEvents) => [formattedEvent, ...prevEvents]);
         });
-        setPlayerRefund(curPlayerRefundEvents.reverse().map((event) => formatRefundEvent(event)));
-
-        lotteryContract.events.Refund()
-          .on("data", (event) => {
-            if (event.returnValues.player !== account) return;
-            const formattedEvent = formatRefundEvent(event);
-            setPlayerRefund((prevEvents) => [formattedEvent, ...prevEvents]);
-          });
-      } catch (error) {
-        console.error("Error fetching past events:", error);
-      }
-    };
-
-    async function fetchWinnerList() {
-      try {
-        const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
-        const winnerList = await lotteryContract.getPastEvents("DrawLottory", {
-          fromBlock: Contract.RefundableLottery.creationBlockNumber,
-          toBlock: "latest",
+        await lotteryContract.on("DrawLottery", (roundNumber, jackpotNumber, winner, amount, inChips, event) => {
+          const formattedEvent = formatWinnerEvent(event);
+          setWinnerList((prevEvents) => [formattedEvent, ...prevEvents]);
         });
-        const formattedEvents = winnerList.reverse().map((event) => formatWinnerEvent(event));
-        setWinnerList(formattedEvents);
-
-        lotteryContract.events.DrawLottory()
-          .on("data", (event) => {
-            const formattedEvent = formatWinnerEvent(event);
-            setWinnerList((prevEvents) => [formattedEvent, ...prevEvents]);
-          });
-      } catch (error) {
-        console.error("Error fetching winner list:", error);
-      }
-    }
-
-    async function fetchRollingRecords(){
-      try {
-        const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
-        const rollingRecords = await lotteryContract.getPastEvents("LotteryDrawing", {
-          fromBlock: Contract.RefundableLottery.creationBlockNumber,
-          toBlock: "latest",
+        await lotteryContract.on("BuyTicket", (roundNumber, player, ticketNumber, amount, inChips, event) => {
+          const formattedEvent = formatBuyTicketEvent(event);
+          setAllTickets((prevEvents) => [formattedEvent, ...prevEvents]);
+          if(player == account){
+            setPlayerTickets((prevEvents) => [formattedEvent, ...prevEvents]);
+          }
         });
-        
-        const formatedEvents = rollingRecords.reverse().map((event) => formatRollingRecord(event));
-        setRollingRecords(formatedEvents);
-
-        lotteryContract.events.LotteryDrawing()
-          .on("data", (event) => {
-            const formattedEvent = formatRollingRecord(event);
-            setRollingRecords((prevEvents) => [formattedEvent, ...prevEvents]);
-          });
       } catch (error) {
         console.error("Error fetching rolling records:", error);
       }
     }
 
     fetchAllTickets();
-    fetchPlayerTockets();
-    fetchPlayerRefund();
-    fetchWinnerList();
-    fetchRollingRecords();
+    listen();
   }, [provider, isConnected]);
 
   return {allTickets, playerTickets, playerRefund, winnerList, rollingRecords};

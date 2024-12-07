@@ -13,13 +13,13 @@ const RefundListTable = ({ listData }) => {
     console.log("Refunding round:", roundNumber);
     const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
     try {
-      await lotteryContract.methods.refund(parseInt(roundNumber)).send({ from: account });
+      await lotteryContract.refund(parseInt(roundNumber));
     } catch (error) {
       console.error("Failed to refund:", error);
     }
   };
   return (
-  <>
+  <div className="h-[calc(100vh-11rem)]">
     <div className="flex items-center space-x-4 mt-4">
       <input
         className="input input-bordered w-1/8"
@@ -73,7 +73,7 @@ const RefundListTable = ({ listData }) => {
         </tbody>
       </table>
     </div>
-  </>
+  </div>
   );
 };
 

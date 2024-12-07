@@ -44,6 +44,16 @@ function Navbar() {
           </span>
         )}
       </div>
+      <div className="flex items-center gap-2 ml-4">
+        <button className="flex items-center space-x-4 p-0 bg-transparent border-none hover:opacity-80">
+          <img
+            src="/walletconnect.png"
+            alt="walletconnect Logo"
+            className="w-10 h-6"
+            title={t("connect_wallet")} 
+          />
+        </button>
+      </div>
       <LanguageSwitcher className="ml-4" />
     </div>
   );

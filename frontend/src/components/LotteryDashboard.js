@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Countdown from "react-countdown";
 import {Contract, useWeb3} from '../contract';
-import web3 from 'web3';
 import useLotteryData from '../hooks/useLotteryData';
 import NumberInput from "./NumberInput";
 import RulePortal from "./RulePortal";
@@ -30,9 +29,9 @@ const LotteryDashboard = () => {
       const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
       console.log("curRoundState", curRoundState);
       if(curRoundState === "ReadyToRoll") {
-        await lotteryContract.methods.rollTheDice().send({ from: account });
+        await lotteryContract.rollTheDice();
       } else if(curRoundState === "ReadyToDraw") {
-        await lotteryContract.methods.drawLottery().send({ from: account });
+        await lotteryContract.drawLottery();
       }
     } catch (error) {
       console.error("Failed to buy ticket with ether:", error);
@@ -42,11 +41,10 @@ const LotteryDashboard = () => {
   const buyTicketWithEther = async () => {
     if (!provider || !isConnected) return;
     const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
-    const priceInEther = await lotteryContract.methods.TICKET_PRICE_IN_ETHER().call();
+    const priceInEther = await lotteryContract.TICKET_PRICE_IN_ETHER();
 
     try {
-      await lotteryContract.methods.buyTicketWithEther(luckyNumber).send({
-        from: account,
+      await lotteryContract.buyTicketWithEther(luckyNumber,{
         value: priceInEther,
       });
     } catch (error) {
@@ -58,16 +56,14 @@ const LotteryDashboard = () => {
     if (!provider || !isConnected) return;
     try {
       const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
-      await lotteryContract.methods.buyTicketWithChips(luckyNumber).send({
-        from: account,
-      });
+      await lotteryContract.buyTicketWithChips(luckyNumber);
     } catch (error) {
       console.error("Failed to buy ticket with chips:", error);
     }
   };
 
   return (
-    <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg max-w-3xl  ml-2">
+    <div className="bg-gray-900 text-white p-6 rounded-lg shadow-lg max-w-3xl  ml-2 h-[calc(100vh-5rem)]">
       <div className="flex items-center justify-between mb-4">
         <button 
           className="btn btn-outline tooltip tooltip-right"
@@ -136,7 +132,7 @@ const LotteryDashboard = () => {
           {t("fifty_percent_off_with_chips")}
         </button>
       </div>
-      <div className="flex flex-wrap justify-evenly items-center mt-4 gap-4 w-full">
+      <div className="flex flex-wrap justify-evenly items-center mt-16 gap-4 w-full">
         <a href={github} target="_blank" rel="noopener noreferrer">
           <img src="/github-mark-white.png" alt="Github" className="w-6 h-6 " title={t("go_to_github")} />
         </a>
