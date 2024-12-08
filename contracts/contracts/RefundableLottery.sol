@@ -132,10 +132,9 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
 
   //Pickup a lucky number between [0, 65535] as your ticket number, 0 and 65535 are both acceptable.
   function buyTicketWithEther(uint _ticketNumber) public payable {
-    require(roundInfos[roundNumber].state == RoundState.PLAYING, "The current round is not playing");
-    require(roundInfos[roundNumber].startBlockNumber + ROUND_PERIOD > block.number, "The current round is end, please wait for the next round");
+    require(getCurRoundState() == RoundState.PLAYING, "The current round is not playing");
     require(msg.value == TICKET_PRICE_IN_ETHER, "The price for a ticket is 0.01 ether");
-    require(_ticketNumber >= 0 && _ticketNumber <= TICKET_NUMBER_RANGE, "The ticket number should be between [0,65535]");
+    require(_ticketNumber >= 0 && _ticketNumber <= TICKET_NUMBER_RANGE, "Invalid ticket number");
     require(msg.sender == tx.origin, "Only EOA(Externally Owned Account) can call this function");
 
     playerEtherPurchaseCount[roundNumber][msg.sender] += 1;
@@ -147,16 +146,14 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
   }
 
   function buyTicketWithChips(uint _ticketNumber) public {
-    require(roundInfos[roundNumber].state == RoundState.PLAYING, "The current round is not playing");
-    require(roundInfos[roundNumber].startBlockNumber + ROUND_PERIOD > block.number, "The current round is end, please wait for the next round");     
-    require(_ticketNumber >= 0 && _ticketNumber <= TICKET_NUMBER_RANGE, "The ticket number should be between [0,65535]");
+    require(getCurRoundState() == RoundState.PLAYING, "The current round is not playing");    
+    require(_ticketNumber >= 0 && _ticketNumber <= TICKET_NUMBER_RANGE, "Invalid ticket number");
     require(msg.sender == tx.origin, "Only EOA(Externally Owned Account) can call this function");
 
     chipsPurchaseCount[roundNumber] += 1;
     uint a = chipsPurchaseCount[roundNumber];
     uint b = etherPurchaseCount[roundNumber];
-    require(b > 0, "There is no player using Ether in this round, so you can not use ChipsToken");
-    require((a*100)/(a+b) <= MAX_PARTICIPATE_RATE_USING_CHIPS, "The number of players using ChipsToken should be less than 50% of the total players");
+    require(b > 0 && ((a*100)/(a+b) <= MAX_PARTICIPATE_RATE_USING_CHIPS), "The number of players using ChipsToken should be less than 50% of the total players");
     
     playerChipsPurchaseCount[roundNumber][msg.sender] += 1;
     ticketHolders[roundNumber][_ticketNumber].push(msg.sender);
@@ -244,7 +241,6 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
 
       for(uint i = 0; i < ticketHolders[roundNumber][_jackpotNum].length; i++){
         payable(ticketHolders[roundNumber][_jackpotNum][i]).transfer(winnerEther);
-        
         if(winnerChips > 0){
             require(chipsToken.transfer(ticketHolders[roundNumber][_jackpotNum][i], winnerChips), "The transfer of ChipsToken failed");
         }
@@ -310,6 +306,7 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
     uint refundEtherAmount = refundEtherInternal(_previousRoundNumber);
     uint refundChipsAmount = refundChipsInternal(_previousRoundNumber);
 
+    require(refundEtherAmount > 0 || refundChipsAmount > 0, "You do not have any ticket in this round");
     emit Refund(_previousRoundNumber, msg.sender, refundEtherAmount, refundChipsAmount);
   }
 
