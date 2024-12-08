@@ -74,7 +74,7 @@ describe("RefundableLottery", function () {
 
     it("Buy a ticket with invalid ticket number", async function () {
       let ticketPrice = await refundableLottery.TICKET_PRICE_IN_ETHER();
-      await expect(refundableLottery.buyTicketWithEther(65536, { value: ticketPrice })).to.be.revertedWith("The ticket number should be between [0,65535]");
+      await expect(refundableLottery.buyTicketWithEther(65536, { value: ticketPrice })).to.be.revertedWith("Invalid ticket number");
     });
 
     it("Buy a ticket with correct ether", async function () {
@@ -82,7 +82,7 @@ describe("RefundableLottery", function () {
 
       const tx = await refundableLottery.buyTicketWithEther(6550, { value: ticketPrice });
       const receipt = await tx.wait();
-      metrix.push({ Operation : "buyTicketWithEther", Gas : receipt.gasUsed });
+      metrix.push({ Operation : "BuyTicketWithEther", Gas : receipt.gasUsed });
 
       const contract_balance = await refundableLottery.runner?.provider?.getBalance(refundableLottery.getAddress());
       expect(contract_balance).to.equal(ticketPrice);
@@ -92,7 +92,7 @@ describe("RefundableLottery", function () {
       await chipsToken.addMinter(refundableLottery.getAddress());
 
       let ticketPrice = await refundableLottery.TICKET_PRICE_IN_ETHER();
-      await expect(refundableLottery.buyTicketWithChips(65536)).to.be.revertedWith("The ticket number should be between [0,65535]");
+      await expect(refundableLottery.buyTicketWithChips(65536)).to.be.revertedWith("Invalid ticket number");
     });
 
     it("Buy a ticket with chips and balance not sufficent", async function () {
@@ -112,7 +112,7 @@ describe("RefundableLottery", function () {
       
       const tx = await refundableLottery.connect(playerA).buyTicketWithChips(6551);
       const receipt = await tx.wait();
-      metrix.push({ Operation : "buyTicketWithChips", Gas : receipt.gasUsed });
+      metrix.push({ Operation : "BuyTicketWithChips", Gas : receipt.gasUsed });
 
       const ticketPrice = await refundableLottery.getDiscountedPriceInChips();
       expect(await chipsToken.balanceOf(playerA.address)).to.equal(parseEther("1000") - ticketPrice);
@@ -148,8 +148,8 @@ describe("RefundableLottery", function () {
       const receipt = await tx.wait();
       metrix.push({ Operation : "DrawLottery for Ether Winner", Gas : receipt.gasUsed });
       await expect(tx)
-        .to.emit(refundableLottery, "DrawLottory")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizePool, false)
+        .to.emit(refundableLottery, "DrawLottery")
+        .withArgs(roundNumber, ticketNumber, playerA.address, prizePool, 0)
         .to.emit(refundableLottery, "RoundEnded")
         .withArgs(roundNumber, ticketNumber, 1)
         .to.emit(refundableLottery, "RoundStarted")
@@ -193,10 +193,8 @@ describe("RefundableLottery", function () {
       metrix.push({ Operation : "DrawLottery for Chips Winner", Gas : receipt.gasUsed });
 
       await expect(tx)
-        .to.emit(refundableLottery, "DrawLottory")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizePoolEther, false)
-        .to.emit(refundableLottery, "DrawLottory")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizePoolChips, true)
+        .to.emit(refundableLottery, "DrawLottery")
+        .withArgs(roundNumber, ticketNumber, playerA.address, prizePoolEther, prizePoolChips)
         .to.emit(refundableLottery, "RoundEnded")
         .withArgs(roundNumber, ticketNumber, 1)
 
@@ -248,14 +246,10 @@ describe("RefundableLottery", function () {
       const tx = await refundableLottery.connect(playerC).drawLotteryForTest(ticketNumber);
       const receipt = await tx.wait();
       await expect(tx)  
-        .to.emit(refundableLottery, "DrawLottory")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizeEther, false)
-        .to.emit(refundableLottery, "DrawLottory")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizeChips, true)
-        .to.emit(refundableLottery, "DrawLottory")
-        .withArgs(roundNumber, ticketNumber, playerB.address, prizeEther, false)
-        .to.emit(refundableLottery, "DrawLottory")
-        .withArgs(roundNumber, ticketNumber, playerB.address, prizeChips, true)
+        .to.emit(refundableLottery, "DrawLottery")
+        .withArgs(roundNumber, ticketNumber, playerA.address, prizeEther, prizeChips)
+        .to.emit(refundableLottery, "DrawLottery")
+        .withArgs(roundNumber, ticketNumber, playerB.address, prizeEther, prizeChips)
         .to.emit(refundableLottery, "RoundEnded")
         .withArgs(roundNumber, ticketNumber, 2)
 
@@ -298,8 +292,8 @@ describe("RefundableLottery", function () {
       const receipt = await tx.wait();
       metrix.push({ Operation : `DrawLottery for ${ticketCount} Ether Winner`, Gas : receipt.gasUsed });
       await expect(tx)
-        .to.emit(refundableLottery, "DrawLottory")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizePool/toBigInt(ticketCount), false)
+        .to.emit(refundableLottery, "DrawLottery")
+        .withArgs(roundNumber, ticketNumber, playerA.address, prizePool/toBigInt(ticketCount), 0)
         .to.emit(refundableLottery, "RoundEnded")
         .withArgs(roundNumber, ticketNumber, ticketCount)
         .to.emit(refundableLottery, "RoundStarted")
@@ -340,10 +334,8 @@ describe("RefundableLottery", function () {
       const receipt = await tx.wait();
       metrix.push({ Operation : `DrawLottery for ${ticketCount} Chips Winners`, Gas : receipt.gasUsed });
       await expect(tx)
-        .to.emit(refundableLottery, "DrawLottory")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizePoolEther/toBigInt(ticketCount), false)
-        .to.emit(refundableLottery, "DrawLottory")
-        .withArgs(roundNumber, ticketNumber, playerA.address, prizePoolChips/toBigInt(ticketCount), true)
+        .to.emit(refundableLottery, "DrawLottery")
+        .withArgs(roundNumber, ticketNumber, playerA.address, prizePoolEther/toBigInt(ticketCount), prizePoolChips/toBigInt(ticketCount))
         .to.emit(refundableLottery, "RoundEnded")
         .withArgs(roundNumber, ticketNumber, ticketCount)
         .to.emit(refundableLottery, "RoundStarted")
@@ -368,7 +360,7 @@ describe("RefundableLottery", function () {
       await refundableLottery.buyTicketWithEther(6550, { value: ticketPriceInEther });
       
       const roundNumber = await refundableLottery.roundNumber();
-      await expect(refundableLottery.refundEther(roundNumber))
+      await expect(refundableLottery.refund(roundNumber))
       .to.be.revertedWith("You can not refund a round which is not completed");
     });
 
@@ -381,7 +373,7 @@ describe("RefundableLottery", function () {
       await refundableLottery.connect(playerA).buyTicketWithChips(6551);
 
       const roundNumber = await refundableLottery.roundNumber();
-      await expect(refundableLottery.connect(playerA).refundChips(roundNumber))
+      await expect(refundableLottery.connect(playerA).refund(roundNumber))
       .to.be.revertedWith("You can not refund a round which is not completed");
     });
 
@@ -391,7 +383,7 @@ describe("RefundableLottery", function () {
       await timeFlowToRoundEnd();
 
       const roundNumber = await refundableLottery.roundNumber();
-      await expect(refundableLottery.refundEther(roundNumber))
+      await expect(refundableLottery.refund(roundNumber))
       .to.be.revertedWith("You can not refund a round which is not completed");
     });
 
@@ -405,7 +397,7 @@ describe("RefundableLottery", function () {
 
       await timeFlowToRoundEnd();
 
-      await expect(refundableLottery.connect(playerA).refundChips(roundNumber))
+      await expect(refundableLottery.connect(playerA).refund(roundNumber))
       .to.be.revertedWith("You can not refund a round which is not completed");
     });
 
@@ -419,7 +411,7 @@ describe("RefundableLottery", function () {
 
       await refundableLottery.connect(playerB).drawLotteryForTest(ticketNumber);
 
-      await expect(refundableLottery.refundEther(roundNumber))
+      await expect(refundableLottery.refund(roundNumber))
       .to.be.revertedWith("The prize pool of this round has been taken by the winner(s)");
     });
     
@@ -436,7 +428,7 @@ describe("RefundableLottery", function () {
       const roundNumber = await refundableLottery.roundNumber();
       await refundableLottery.connect(playerB).drawLotteryForTest(ticketNumber);
 
-      await expect(refundableLottery.connect(playerA).refundChips(roundNumber))
+      await expect(refundableLottery.connect(playerA).refund(roundNumber))
       .to.be.revertedWith("The prize pool of this round has been taken by the winner(s)");
     });
 
@@ -456,15 +448,15 @@ describe("RefundableLottery", function () {
       const chipsBalanceBefore = await chipsToken.balanceOf(owner.address);
       const chipsPricePerEther = await refundableLottery.CHIPS_PRICE_PER_ETHER();
 
-      const tx = await refundableLottery.refundEther(roundNumber);
+      const tx = await refundableLottery.refund(roundNumber);
       const receipt = await tx.wait();
       const transactionCost = toBigInt(receipt.gasUsed) * toBigInt(tx.gasPrice);
       const chipsReward = managementFee * chipsPricePerEther;
-      metrix.push({ Operation : "RefundEther", Gas : receipt.gasUsed });
+      metrix.push({ Operation : "Refund Ether", Gas : receipt.gasUsed });
 
       await expect(tx)
         .to.emit(refundableLottery, "Refund")
-        .withArgs(roundNumber, owner.address, refundAmount, false);
+        .withArgs(roundNumber, owner.address, refundAmount, 0);
 
       const balanceAfter = await refundableLottery.runner?.provider?.getBalance(owner.address);
       const chipsBalanceAfter = await chipsToken.balanceOf(owner.address);
@@ -490,13 +482,13 @@ describe("RefundableLottery", function () {
       const refundAmount = ticketPriceInChips - toBigInt(ticketPriceInChips*managementFeeRate)/toBigInt(100);
       const balanceBefore = await chipsToken.balanceOf(playerA.address);
 
-      const tx = await refundableLottery.connect(playerA).refundChips(roundNumber);
+      const tx = await refundableLottery.connect(playerA).refund(roundNumber);
       const receipt = await tx.wait();
-      metrix.push({ Operation : "RefundChips", Gas : receipt.gasUsed });
+      metrix.push({ Operation : "Refund Chips", Gas : receipt.gasUsed });
 
       await expect(tx)
         .to.emit(refundableLottery, "Refund")
-        .withArgs(roundNumber, playerA.address, refundAmount, true);
+        .withArgs(roundNumber, playerA.address, 0, refundAmount);
 
       const balanceAfter = await chipsToken.balanceOf(playerA.address);
       
@@ -525,9 +517,9 @@ describe("RefundableLottery", function () {
       const chipsBalanceBefore = await chipsToken.balanceOf(playerA.address);
       const chipsReward = managementFee * chipsPricePerEther;
 
-      const tx = await refundableLottery.connect(playerA).refundEther(roundNumber);
+      const tx = await refundableLottery.connect(playerA).refund(roundNumber);
       const receipt = await tx.wait();
-      metrix.push({ Operation : `RefundEther for ${ticketCount} ether tickets`, Gas : receipt.gasUsed });
+      metrix.push({ Operation : `Refund for ${ticketCount} ether tickets`, Gas : receipt.gasUsed });
 
       const transactionCost = toBigInt(receipt.gasUsed) * toBigInt(tx.gasPrice);
       const balanceAfter = await refundableLottery.runner?.provider?.getBalance(playerA.address);
@@ -535,7 +527,7 @@ describe("RefundableLottery", function () {
 
       await expect(tx)
         .to.emit(refundableLottery, "Refund")
-        .withArgs(roundNumber, playerA.address, refundAmount, false);
+        .withArgs(roundNumber, playerA.address, refundAmount, 0);
 
       expect(balanceAfter - balanceBefore).to.equal(refundAmount - transactionCost);  
       expect(chipsBalanceAfter - chipsBalanceBefore).to.equal(chipsReward);
@@ -570,13 +562,13 @@ describe("RefundableLottery", function () {
       const refundAmount = toBigInt(ticketCount)*(ticketPriceInChips - toBigInt(ticketPriceInChips*managementFeeRate)/toBigInt(100));
       const balanceBefore = await chipsToken.balanceOf(playerA.address);
 
-      const tx = await refundableLottery.connect(playerA).refundChips(roundNumber);
+      const tx = await refundableLottery.connect(playerA).refund(roundNumber);
       const receipt = await tx.wait();
-      metrix.push({ Operation : `RefundChips for ${ticketCount} chips tickets`, Gas : receipt.gasUsed });
+      metrix.push({ Operation : `Refund Chips for ${ticketCount} chips tickets`, Gas : receipt.gasUsed });
 
       await expect(tx)
         .to.emit(refundableLottery, "Refund")
-        .withArgs(roundNumber, playerA.address, refundAmount, true);
+        .withArgs(roundNumber, playerA.address, 0, refundAmount);
 
       const balanceAfter = await chipsToken.balanceOf(playerA.address);
       
