@@ -29,31 +29,6 @@ const BINANCE_TESTNET = {
 
 const TARGET_NETWORK = ETHEREUM_SEPOLIA;
 
-async function _createInstance(contractConfig, provider) {
-  const signer = provider?.getSigner();
-  const network = await provider?.getNetwork();
-  if (network?.chainId !== parseInt(Contract.NETWORK.chainId, 16)) {
-    console.error("ChainId not match, please switch to correct network, current chainId: ", network?.chainId, 
-                  " contract ", contractConfig.contractName, " was deployed on chain: ", Contract.NETWORK.chainId);
-    return null;
-  }
-  contractConfig._instance = new ethers.Contract(contractConfig.address, contractConfig.abi, signer);
-  return contractConfig._instance;
-}
-
-async function _getInstance(contractConfig, provider) {
-  if(contractConfig._instance){
-    return contractConfig._instance;
-  }
-  if (!contractConfig._instancePromise) {
-    contractConfig._instancePromise = _createInstance(contractConfig, provider);
-  }
-
-  contractConfig._instance = await contractConfig._instancePromise;
-  contractConfig._instancePromise = null;
-  return contractConfig._instance;
-}
-
 export const Contract = {
   NETWORK:TARGET_NETWORK,
   
@@ -62,13 +37,8 @@ export const Contract = {
     address: "0x4605de5402a18870095b987644b8594047272278",
     creationBlockNumber: 7193618,
     abi:RefundableLotteryAbi.abi,
-    _instance: null,
-    _instancePromise: null,
-    getInstance:async function(provider){
-      return await _getInstance(this, provider);
-    }
   },
   
 }
 
-export { useWeb3, Web3Wrapper } from './useWeb3';
+export { useWalletConnect, WalletConnectWrapper } from './useWalletConnect';

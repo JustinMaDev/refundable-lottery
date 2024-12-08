@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import {Contract, useWeb3} from '../contract';
+import {Contract, useWalletConnect} from '../contract';
 import {ethers} from 'ethers';
 
 function shortenAddress(address, startLength = 6, endLength = 4) {
@@ -66,8 +66,8 @@ function formatRollingRecord(event) {
   };
 }
 
-const PastEventsViewer = () => {
-  const { account, provider, isConnected} = useWeb3();
+const useLotteryEvent = () => {
+  const { account, provider, isConnected, lotteryContract} = useWalletConnect();
   const [allTickets, setAllTickets] = useState([]);
   const [playerTickets, setPlayerTickets] = useState([]);
   const [playerRefund, setPlayerRefund] = useState([]);
@@ -75,11 +75,8 @@ const PastEventsViewer = () => {
   const [rollingRecords, setRollingRecords] = useState([]);
 
   useEffect(() => {
-    if (!provider || !isConnected) return;
-
     const fetchAllTickets = async () => {
       try{
-        const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
         let filter = lotteryContract.filters.LotteryDrawing();
         const rollingRecords = await lotteryContract.queryFilter(filter);
         const formatedEvents = rollingRecords.reverse().map((event) => {
@@ -93,7 +90,7 @@ const PastEventsViewer = () => {
         const allTickets = await Promise.all(
           allBuyTicketEvents.reverse().map(async (event) => {
             const formattedEvent = formatBuyTicketEvent(event);
-            if(event.args.player === account){
+            if(event.args.player.toUpperCase() === account.toUpperCase()){
               playerTickets.push(formattedEvent);
             }
             return formattedEvent;
@@ -117,7 +114,6 @@ const PastEventsViewer = () => {
 
     async function listen(){
       try {
-        const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
         await lotteryContract.on("LotteryDrawing", (roundNumber, requestId, chainlinkResult, jackpotNumber, event) => {
           const formattedEvent = formatRollingRecord(event);
           setRollingRecords((prevEvents) => [formattedEvent, ...prevEvents]);
@@ -133,7 +129,7 @@ const PastEventsViewer = () => {
         await lotteryContract.on("BuyTicket", (roundNumber, player, ticketNumber, amount, inChips, event) => {
           const formattedEvent = formatBuyTicketEvent(event);
           setAllTickets((prevEvents) => [formattedEvent, ...prevEvents]);
-          if(player == account){
+          if(player.toUpperCase() == account.toUpperCase()){
             setPlayerTickets((prevEvents) => [formattedEvent, ...prevEvents]);
           }
         });
@@ -142,11 +138,20 @@ const PastEventsViewer = () => {
       }
     }
 
-    fetchAllTickets();
-    listen();
+    
+    if (isConnected && provider) {
+      fetchAllTickets();
+      listen();
+    }else{
+      setAllTickets([]);
+      setPlayerTickets([]);
+      setPlayerRefund([]);
+      setWinnerList([]);
+      setRollingRecords([]);
+    }
   }, [provider, isConnected]);
 
   return {allTickets, playerTickets, playerRefund, winnerList, rollingRecords};
 };
 
-export default PastEventsViewer;
+export default useLotteryEvent;

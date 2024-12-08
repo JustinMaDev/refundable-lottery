@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { Contract, useWeb3 } from "../contract";
+import { Contract, useWalletConnect } from "../contract";
 import { useTranslation } from "react-i18next";
 
 const WinnerListTable = ({ listData }) => {

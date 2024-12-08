@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import {Contract, useWeb3} from '../contract';
+import { useState, useEffect, useRef } from "react";
+import {Contract, useWalletConnect} from '../contract';
 import {ethers} from 'ethers';
 
 function BigInt(num) {
@@ -24,9 +24,11 @@ async function getAverageBlockTimeMs(provider, startBlock, numBlocks) {
     console.error("Error fetching block data:", error);
   }
 }
+
 const useLotteryData = () => {
-  const { account, provider, isConnected} = useWeb3();
-  
+  const { account, provider, isConnected, lotteryContract} = useWalletConnect();
+  const pollNewBlocksID = useRef(null);
+
   const RoundState = ["Upcoming", "Playing", "ReadyToRoll", "Rolling", "ReadyToDraw", "Ended"];
   const stateTipsMap = [
     "UpcomingTips",
@@ -54,9 +56,7 @@ const useLotteryData = () => {
   let roundPeriod = BigInt(0);
   const fetchGlobalConfig = async () => {
     try {
-      if (!provider || !isConnected) return;
-      const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
-      
+      if (!provider || !isConnected) return;      
       const globalConfig = await lotteryContract.getGlobalConfig();
       const managmentFee = globalConfig[0];
       const priceInEther = globalConfig[1];
@@ -80,8 +80,6 @@ const useLotteryData = () => {
   const fetchCurRoundData = async () => {
     try {
       if (!provider || !isConnected) return;
-      const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
-
       //Get current round data
       const roundDetail = await lotteryContract.getRoundDetail(0);
       const roundNumber = roundDetail.roundNumber;
@@ -117,7 +115,6 @@ const useLotteryData = () => {
     const listenEvent = async () => {
       try {
         if (!provider || !isConnected) return;
-        const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
         
         await lotteryContract.on("RoundStarted", async () => {
           fetchCurRoundData();
@@ -139,9 +136,9 @@ const useLotteryData = () => {
     const pollNewBlocks = async () => {
       if (!provider || !isConnected) return;
       let latestBlock = await provider.getBlockNumber();
-      const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
 
-      setInterval(async () => {
+      pollNewBlocksID.current = setInterval(async () => {
+        if (!provider || !isConnected) return;
         const currentBlock = await provider.getBlockNumber();
         if (currentBlock > latestBlock) {
           const curState = await lotteryContract.getCurRoundState();
@@ -152,10 +149,20 @@ const useLotteryData = () => {
       }, 12000); //Poll every 12 seconds
     };
 
-    fetchGlobalConfig();
-    fetchCurRoundData();
-    listenEvent();
-    pollNewBlocks();
+    if(isConnected && provider){
+      fetchGlobalConfig();
+      fetchCurRoundData();
+      listenEvent();
+      pollNewBlocks();
+    }else{
+      clearInterval(pollNewBlocksID.current);
+      pollNewBlocksID.current = null;
+    }
+    
+    return () => {
+      clearInterval(pollNewBlocksID.current);
+      pollNewBlocksID.current = null;
+    };
   }, [provider, isConnected, account]);
 
   return { roundNumber, countdownKey, countdownDate, ticketCount, 

@@ -1,19 +1,18 @@
 import React from "react";
 import { useRef, useState } from "react";
-import { Contract, useWeb3 } from "../contract";
+import { Contract, useWalletConnect } from "../contract";
 import { useTranslation } from "react-i18next";
 import RuntimeErrorPortal from "./RuntimeErrorPortal";
 
 const RefundListTable = ({ listData }) => {
   const { t, i18n } = useTranslation();
-  const { account, provider, isConnected } = useWeb3();
+  const { account, provider, isConnected, lotteryContract } = useWalletConnect();
   const [roundNumber, setRoundNumber] = useState("");
   const runtimeErrorPortalRef = useRef();
 
   const handleRefund = async () => {
     if (!provider || !isConnected) return;
     console.log("Refunding round:", roundNumber);
-    const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
     try {
       await lotteryContract.refund(parseInt(roundNumber));
     } catch (error) {

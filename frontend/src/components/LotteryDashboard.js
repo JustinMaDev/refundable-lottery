@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import Countdown from "react-countdown";
-import {Contract, useWeb3} from '../contract';
+import {Contract, useWalletConnect} from '../contract';
 import useLotteryData from '../hooks/useLotteryData';
 import NumberInput from "./NumberInput";
 import RulePortal from "./RulePortal";
@@ -9,7 +9,7 @@ import RuntimeErrorPortal from "./RuntimeErrorPortal";
 
 const LotteryDashboard = () => {
   const { t, i18n } = useTranslation();
-  const { account, provider, isConnected} = useWeb3();
+  const { account, provider, isConnected, lotteryContract} = useWalletConnect();
   const [ luckyNumber, setLuckyNumber ] = useState(0);
 
   const { roundNumber, countdownKey, countdownDate, ticketCount, 
@@ -29,7 +29,6 @@ const LotteryDashboard = () => {
   const handleOperation = async () => {
     if (!provider || !isConnected) return;
     try {
-      const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
       console.log("curRoundState", curRoundState);
       if(curRoundState === "ReadyToRoll") {
         await lotteryContract.rollTheDice();
@@ -43,7 +42,6 @@ const LotteryDashboard = () => {
 
   const buyTicketWithEther = async () => {
     if (!provider || !isConnected) return;
-    const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
     const priceInEther = await lotteryContract.TICKET_PRICE_IN_ETHER();
 
     try {
@@ -58,7 +56,6 @@ const LotteryDashboard = () => {
   const buyTicketWithChips =async  () => {
     if (!provider || !isConnected) return;
     try {
-      const lotteryContract = await Contract.RefundableLottery.getInstance(provider);
       await lotteryContract.buyTicketWithChips(luckyNumber);
     } catch (error) {
       runtimeErrorPortalRef.current.open(error);

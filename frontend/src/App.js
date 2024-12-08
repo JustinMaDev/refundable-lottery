@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import "./App.css";
-import { Web3Wrapper } from "./contract";
+import { WalletConnectWrapper } from "./contract";
 import Navbar from "./components/Navbar";
 import LotteryDashboard from "./components/LotteryDashboard";
 import TicketHistory from "./components/TicketHistory";
@@ -12,7 +12,7 @@ function App() {
   const [showWelcome, setShowWelcome] = useState(true);
   
   return (
-    <Web3Wrapper>
+    <WalletConnectWrapper>
     <div className="min-h-screen flex flex-col bg-gray-100">
       {showWelcome && (
         <div className="absolute inset-0 bg-gray-900 text-white flex flex-col items-center justify-center z-50">
@@ -39,7 +39,7 @@ function App() {
         </div>
       </div>
     </div>
-    </Web3Wrapper>
+    </WalletConnectWrapper>
   );
 }
 
