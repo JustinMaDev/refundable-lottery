@@ -11,7 +11,7 @@
     },
     {
         "name": "RefundableLottery",
-        "type": "deploy",
+        "type": "deploy_",
         "description": "Deploy RefundableLottery contract",
         "args": [
             "$subscriptionId",
@@ -23,7 +23,7 @@
     },
     {
         "name": "ChipsToken",
-        "type": "call_",
+        "type": "call",
         "function": "addMinter",
         "description": "Add RefundableLottery contract as minter of ChipsToken",
         "args": [

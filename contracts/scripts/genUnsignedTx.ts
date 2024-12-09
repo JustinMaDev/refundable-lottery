@@ -74,15 +74,24 @@ async function getInvocationTx(operation) {
     data: unsignedTx.data,
   });
 
+  console.log(
+    `\x1b[32mDeploy ${operation.name} contract at nonce: ${env.nonce}, 
+    Gas Estimate: ${gasEstimate}, 
+    Gas Price: ${feeData.gasPrice.toString()} 
+    Max Fee Per Gas: ${feeData.maxFeePerGas.toString()}
+    Max Priority Fee Per Gas: ${feeData.maxPriorityFeePerGas.toString()}
+    \x1b[0m`
+  );
+
   return {
     from: env.deployer,
     to: contractAddr,
     value: operation.value,
     data: unsignedTx.data,
     gasLimit: ethers.toBeHex(gasEstimate),
-    //gasPrice: ethers.toBeHex(feeData.gasPrice),
-    maxFeePerGas: ethers.toBeHex(feeData.maxFeePerGas),
-    maxPriorityFeePerGas: ethers.toBeHex(feeData.maxPriorityFeePerGas*ethers.toBigInt(2)),
+    gasPrice: ethers.toBeHex(feeData.gasPrice),
+    //maxFeePerGas: ethers.toBeHex(feeData.maxFeePerGas),
+    //maxPriorityFeePerGas: ethers.toBeHex(feeData.maxPriorityFeePerGas*ethers.toBigInt(2)),
     nonce: ethers.toBeHex(env.nonce),
     chainId: ethers.toBeHex(hardhat.network.config.chainId),
   };
@@ -105,11 +114,19 @@ async function main(){
     }
   }
   const filePath = "./scripts/unsignedTx.json";
+  //Clear the file first
+  fs.writeFileSync(filePath, "");
   fs.writeFileSync(filePath, JSON.stringify(txList, null, 2));
   console.log(`Unsigned transaction saved to ${filePath}`);
 
-  const configFile = "./scripts/config_nonce_" + env.nonce + ".json";
-  fs.writeFileSync(configFile, JSON.stringify(env, null, 2));
+  config[hardhat.network.name] = env;
+  //wtite the config file
+  const configFile = "./scripts/config.json";
+  fs.writeFileSync(configFile, "");
+  fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
+
+  const configFileTmp = "./scripts/temp/config_nonce_" + env.nonce + ".json";
+  fs.writeFileSync(configFileTmp, JSON.stringify(env, null, 2));
   console.log(`Config file saved to ${configFile}`);
 }
 
