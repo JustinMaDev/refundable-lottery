@@ -1,23 +1,14 @@
 import { useEffect, useState } from "react";
 import {Contract, useWalletConnect} from '../contract';
-import {ethers} from 'ethers';
-
-function shortenAddress(address, startLength = 6, endLength = 4) {
-  if (!address || address.length < startLength + endLength) {
-    return address;
-  }
-  const start = address.slice(0, startLength);
-  const end = address.slice(-endLength);
-  return `${start}...${end}`;
-}
+import { toHex, toEther, shortenString } from '../utils';
 
 function formatBuyTicketEvent(event) {
   return {
     roundNumber: event.args.roundNumber.toString(),
     ticketNumber: event.args.ticketNumber.toString(),
-    ticketNumberHex: `(0x${ethers.utils.hexlify(event.args.ticketNumber).slice(2).toUpperCase()})`,
-    player: shortenAddress(event.args.player),
-    amount: ethers.utils.formatUnits(event.args.amount, "ether")+ (event.args.inChips ? " Chips" : " ETH"),
+    ticketNumberHex: `(0x${toHex(event.args.ticketNumber).slice(2).toUpperCase()})`,
+    player: shortenString(event.args.player),
+    amount: toEther(event.args.amount)+ (event.args.inChips ? " Chips" : " ETH"),
     blockNumber: event.blockNumber.toString(),
     txLink: Contract.NETWORK.blockExplorerTx + event.transactionHash,
     addrLink: Contract.NETWORK.blockExplorerAddress + event.args.player,
@@ -25,11 +16,11 @@ function formatBuyTicketEvent(event) {
 }
 
 function formatRefundEvent(event) {
-  const refundEtherAmount = ethers.utils.formatUnits(event.args.refundEtherAmount, "ether");
-  const refundChipsAmount = ethers.utils.formatUnits(event.args.refundChipsAmount, "ether");
+  const refundEtherAmount = toEther(event.args.refundEtherAmount);
+  const refundChipsAmount = toEther(event.args.refundChipsAmount);
   return {
     roundNumber: event.args.roundNumber.toString(),
-    player: shortenAddress(event.args.player),
+    player: shortenString(event.args.player),
     refundAmount: `${refundEtherAmount}ETH + ${refundChipsAmount}CHIP`,
     blockNumber: event.blockNumber.toString(),
     txLink: Contract.NETWORK.blockExplorerTx + event.transactionHash,
@@ -38,13 +29,13 @@ function formatRefundEvent(event) {
 }
 
 function formatWinnerEvent(event) {
-  const etherAmount = ethers.utils.formatUnits(event.args.etherAmount, "ether");
-  const chipsAmount = ethers.utils.formatUnits(event.args.chipsAmount, "ether");
+  const etherAmount = toEther(event.args.etherAmount);
+  const chipsAmount = toEther(event.args.chipsAmount);
   return {
     roundNumber: event.args.roundNumber.toString(),
     jackpotNumber: "🥇" + event.args.jackpotNumber.toString(),
-    jackpotNumberHex: `(0x${ethers.utils.hexlify(event.args.jackpotNumber).slice(2).toUpperCase()})`,
-    winner: shortenAddress(event.args.winner),
+    jackpotNumberHex: `(0x${toHex(event.args.jackpotNumber).slice(2).toUpperCase()})`,
+    winner: shortenString(event.args.winner),
     amount: `${etherAmount}ETH + ${chipsAmount}CHIP`,
     blockNumber: event.blockNumber.toString(),
     txLink: Contract.NETWORK.blockExplorerTx + event.transactionHash,
@@ -55,12 +46,12 @@ function formatWinnerEvent(event) {
 function formatRollingRecord(event) {
   return {
     roundNumber: event.args.roundNumber.toString(),
-    requestId: shortenAddress(event.args.requestId.toString(), 4, 4),
+    requestId: shortenString(event.args.requestId.toString(), 4, 4),
     fullRequestId: event.args.requestId.toString(),
-    chainlinkResult: shortenAddress(ethers.utils.hexlify(event.args.chainlinkResult), 4, 4),
-    fullChainlinkResult: ethers.utils.hexlify(event.args.chainlinkResult),
+    chainlinkResult: shortenString(toHex(event.args.chainlinkResult), 4, 4),
+    fullChainlinkResult: toHex(event.args.chainlinkResult),
     jackpotNumber: event.args.jackpotNumber.toString(),
-    jackpotNumberHex: `(0x${ethers.utils.hexlify(event.args.jackpotNumber).slice(2).toUpperCase()})`,
+    jackpotNumberHex: `(0x${toHex(event.args.jackpotNumber).slice(2).toUpperCase()})`,
     blockNumber: event.blockNumber.toString(),
     txLink: Contract.NETWORK.blockExplorerTx + event.transactionHash,
   };

@@ -67,6 +67,19 @@
     "go_to_facebook": "Facebook に移動して私たちのページに「いいね！」をしてください",
     "go_to_thread": "Thread に移動",
     "go_to_discord": "Discord に移動してサーバーに参加してください",
+    "buy_sell_chips": "チップの購入/販売",
+    "chipstoken_exchange": "チップストークン交換",
+    "from": "送信元:",
+    "to": "送信先:",
+    "your_account": "あなたのアカウント:",
+    "ether_balance": "イーサリアム残高:",
+    "chips_balance": "チップ残高:",
+    "chips_buy_price": "1 ETHでチップを購入: ",
+    "chips_sell_price": "1000チップを販売: ",
+    "ether_liquidity_pool": "ETH流動性プール: ",
+    "chips_liquidity_pool": "チップ流動性プール: ",
+    "exchange": "交換",
+    "close": "閉じる",
     "":""
   }
   

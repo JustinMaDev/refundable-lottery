@@ -1,6 +1,6 @@
 import React from "react";
 import { useRef, useState } from "react";
-import { Contract, useWalletConnect } from "../contract";
+import { useWalletConnect } from "../contract";
 import { useTranslation } from "react-i18next";
 import RuntimeErrorPortal from "./RuntimeErrorPortal";
 

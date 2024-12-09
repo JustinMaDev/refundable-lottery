@@ -12,6 +12,7 @@ export function WalletConnectWrapper({ children }) {
   const [provider, setProvider] = useState(null);
   const [chainId, setChainId] = useState(null);
   const [lotteryContract, setLotteryContract] = useState(null);
+  const [chipsContract, setChipsContract] = useState(null);
 
   const projectId = process.env.REACT_APP_REOWN_PROJECT_ID;
   const networks = [sepolia, mainnet];
@@ -42,9 +43,12 @@ export function WalletConnectWrapper({ children }) {
       const ethersProvider = new ethers.providers.Web3Provider(walletProvider);
       const signer = ethersProvider.getSigner();
       setProvider(ethersProvider);
-      const contractConfig = Contract.RefundableLottery;
-      const contract = new ethers.Contract(contractConfig.address, contractConfig.abi, signer);
-      setLotteryContract(contract);
+      
+      const lottery = new ethers.Contract(Contract.RefundableLottery.address, Contract.RefundableLottery.abi, signer);
+      setLotteryContract(lottery);
+
+      const chips = new ethers.Contract(Contract.ChipsToken.address, Contract.ChipsToken.abi, signer);
+      setChipsContract(chips);
     }
     if(!isConnected){
       lotteryContract?.removeAllListeners();
@@ -57,6 +61,7 @@ export function WalletConnectWrapper({ children }) {
 
     return () => {
       lotteryContract?.removeAllListeners();
+      chipsContract?.removeAllListeners();
     };
   }, [isConnected, address]);
 
@@ -69,7 +74,7 @@ export function WalletConnectWrapper({ children }) {
   };
 
   return (
-    <WalletConnectContext.Provider value={{ chainId, account, provider, isConnected, connect, lotteryContract}}>
+    <WalletConnectContext.Provider value={{ chainId, account, provider, isConnected, connect, lotteryContract, chipsContract}}>
       {children}
     </WalletConnectContext.Provider>
   );

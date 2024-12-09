@@ -1,10 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import {Contract, useWalletConnect} from '../contract';
-import {ethers} from 'ethers';
+import { useWalletConnect } from '../contract';
+import { toBigNumber, toEther } from '../utils';
 
-function BigInt(num) {
-  return ethers.BigNumber.from(num);
-}
 async function getAverageBlockTimeMs(provider, startBlock, numBlocks) {
   try {
     let totalTime = 0;
@@ -53,7 +50,7 @@ const useLotteryData = () => {
   const [ticketMaxNumber, setTicketMaxNumber] = useState(0);
   const [chipsDiscount, setChipsDiscount] = useState(0);
 
-  let roundPeriod = BigInt(0);
+  let roundPeriod = toBigNumber(0);
   const fetchGlobalConfig = async () => {
     try {
       if (!provider || !isConnected) return;      
@@ -67,9 +64,8 @@ const useLotteryData = () => {
       const maxParticipateRateInChips = globalConfig[6];
       roundPeriod = globalConfig[7];
       
-      const priceInChipsFormat = ethers.utils.formatUnits(priceInChips, 'ether');
-      setTicketPriceInEther(`${ethers.utils.formatUnits(priceInEther.toString(), 'ether')}ETH`);
-      setTicketPriceInChips(`${parseFloat(priceInChipsFormat).toFixed(0)}CHIP`);
+      setTicketPriceInEther(`${toEther(priceInEther)}ETH`);
+      setTicketPriceInChips(`${parseFloat(toEther(priceInChips)).toFixed(0)}CHIP`);
       setChipsDiscount(chipsDiscountRate);
       setTicketMaxNumber(ticketNumberRange);
     } catch (error) {
@@ -94,8 +90,8 @@ const useLotteryData = () => {
         restSecond = endBlockNumber.sub(curBlockNumber).mul(averageBlockTime);
       }
       console.log("restSecond!!!:", restSecond.toString());
-      const roundEther = ethers.utils.formatUnits(roundDetail.roundEtherBalance, 'ether');
-      const roundChips = ethers.utils.formatUnits(roundDetail.roundChipsBalance, 'ether');
+      const roundEther = toEther(roundDetail.roundEtherBalance);
+      const roundChips = toEther(roundDetail.roundChipsBalance);
       
       setCurRoundState(RoundState[curState]);
       setRoundNumber(roundDetail.roundNumber.toString());

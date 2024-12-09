@@ -67,6 +67,19 @@
     "go_to_facebook": "Перейдите в Facebook и поставьте лайк нашей странице",
     "go_to_thread": "Перейти в Thread",
     "go_to_discord": "Перейдите в Discord и присоединяйтесь к нашему серверу",
+    "buy_sell_chips": "Купить/Продать Chips",
+    "chipstoken_exchange": "Обмен ChipsToken",
+    "from": "От:",
+    "to": "Кому:",
+    "your_account": "Ваш аккаунт:",
+    "ether_balance": "Баланс эфира:",
+    "chips_balance": "Баланс Chips:",
+    "chips_buy_price": "Купить фишки за 1 ETH: ",
+    "chips_sell_price": "Продать 1000 фишек: ",
+    "ether_liquidity_pool": "Пул ликвидности ETH: ",
+    "chips_liquidity_pool": "Пул ликвидности фишек: ",
+    "exchange": "Обмен",
+    "close": "Закрыть",
     "":""
   }
   

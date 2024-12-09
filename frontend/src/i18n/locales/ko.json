@@ -67,6 +67,19 @@
     "go_to_facebook": "Facebook으로 이동하여 페이지를 좋아하세요",
     "go_to_thread": "Thread로 이동",
     "go_to_discord": "Discord로 이동하여 서버에 참여하세요",
+    "buy_sell_chips": "칩 구매/판매",
+    "chipstoken_exchange": "칩토큰 교환",
+    "from": "보낸 사람:",
+    "to": "받는 사람:",
+    "your_account": "귀하의 계정:",
+    "ether_balance": "이더리움 잔액:",
+    "chips_balance": "칩 잔액:",
+    "chips_buy_price": "1 ETH로 칩 구매: ",
+    "chips_sell_price": "1000칩 판매: ",
+    "ether_liquidity_pool": "ETH 유동성 풀: ",
+    "chips_liquidity_pool": "칩 유동성 풀: ",
+    "exchange": "교환",
+    "close": "닫기",
     "":""
   }
   

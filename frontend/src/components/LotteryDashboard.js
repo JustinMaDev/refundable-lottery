@@ -1,11 +1,12 @@
 import React, { useState, useRef } from "react";
 import Countdown from "react-countdown";
-import {Contract, useWalletConnect} from '../contract';
+import { useWalletConnect } from '../contract';
 import useLotteryData from '../hooks/useLotteryData';
 import NumberInput from "./NumberInput";
 import RulePortal from "./RulePortal";
 import { useTranslation } from "react-i18next";
 import RuntimeErrorPortal from "./RuntimeErrorPortal";
+import ExchangePortal from "./ExchangePortal";
 
 const LotteryDashboard = () => {
   const { t, i18n } = useTranslation();
@@ -127,7 +128,8 @@ const LotteryDashboard = () => {
           onClick={buyTicketWithEther}
         >
           {t("using") + " " + ticketPriceInEther}
-        </button>
+        </button>  
+        <ExchangePortal />
         <button
           className="btn btn-primary"
           onClick={buyTicketWithChips}

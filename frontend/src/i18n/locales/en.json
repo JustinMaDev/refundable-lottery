@@ -70,5 +70,18 @@
     "go_to_facebook": "Go to Facebook and like our page",
     "go_to_thread": "Go to thread",
     "go_to_discord": "Go to Discord and join our server",
+    "buy_sell_chips": "Buy/Sell Chips",
+    "chipstoken_exchange": "ChipsToken Exchange",
+    "from": "From:",
+    "to": "To:",
+    "your_account": "Your account:",
+    "ether_balance": "Ether balance:",
+    "chips_balance": "Chips balance:",
+    "chips_buy_price":"Buy Chips with 1 ETH: ",
+    "chips_sell_price":"Sell 1000 Chips: ",
+    "ether_liquidity_pool":"ETH Liquidity Pool: ",
+    "chips_liquidity_pool":"Chips Liquidity Pool: ",
+    "exchange": "Exchange",
+    "close": "Close",
     "":""
 }

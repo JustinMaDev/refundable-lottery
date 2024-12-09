@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import "./App.css";
 import { WalletConnectWrapper } from "./contract";
 import Navbar from "./components/Navbar";
@@ -8,8 +7,8 @@ import TicketHistory from "./components/TicketHistory";
 import { useTranslation } from "react-i18next";
 
 function App() {
-  const { t, i18n } = useTranslation();
-  const [showWelcome, setShowWelcome] = useState(true);
+  const { t } = useTranslation();
+  const [showWelcome, setShowWelcome] = useState(false);
   
   return (
     <WalletConnectWrapper>

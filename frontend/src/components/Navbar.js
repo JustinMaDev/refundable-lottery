@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import {Contract, useWalletConnect} from '../contract';
+import React from "react";
+import { useWalletConnect } from '../contract';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 
@@ -12,7 +11,7 @@ function Navbar() {
     <div className="navbar px-4 shadow-md">
       {/* Logo */}
       <div className="flex items-center">
-        <img src="/chips.png" alt="Logo" className="w-10 h-10" />
+        <img src="/chips-logo.svg" alt="Logo" className="w-10 h-10" />
         <span className="ml-2 mr-4 text-xl font-semibold">{t("refundable_lottery")}</span>
              
       </div>

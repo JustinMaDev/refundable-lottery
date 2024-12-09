@@ -1,4 +1,3 @@
-import { parse } from "postcss";
 import React, { useState } from "react";
 
 const NumberInput = ({onChange, maxNumber}) => {

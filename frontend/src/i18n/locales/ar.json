@@ -67,6 +67,19 @@
     "go_to_facebook": "انتقل إلى Facebook وأعجب بصفحتنا",
     "go_to_thread": "انتقل إلى Thread",
     "go_to_discord": "انتقل إلى Discord وانضم إلى خادمنا",
+    "buy_sell_chips": "شراء/بيع الشرائح",
+    "chipstoken_exchange": "تبادل رموز Chips",
+    "from": "من:",
+    "to": "إلى:",
+    "your_account": "حسابك:",
+    "ether_balance": "رصيد الإيثر:",
+    "chips_balance": "رصيد الشرائح:",
+    "chips_buy_price": "شراء رقائق بـ 1 ETH: ",
+    "chips_sell_price": "بيع 1000 رقاقة: ",
+    "ether_liquidity_pool": "مجمع سيولة ETH: ",
+    "chips_liquidity_pool": "مجمع سيولة الرقائق: ",
+    "exchange": "تبادل",
+    "close": "إغلاق",
     "":""
   }
   

@@ -31,7 +31,7 @@ const RulePortal = () => {
                   <h2>{t("note")}</h2>
                   <p>{t("note_1")}</p>
                   <p>{t("note_2")}</p>
-                  <p>{t("how_to_get_chips")}</p>
+                  {/*<p>{t("how_to_get_chips")}</p>
                   <p>
                     <a 
                       href="http://localhost:3001/" 
@@ -41,13 +41,13 @@ const RulePortal = () => {
                     >
                       {t("buy_chips")}
                     </a>
-                  </p>
+                  </p>*/}
                 </div>
               <button
                 className="btn btn-primary mt-4"
                 onClick={() => setIsOpen(false)}
               >
-                Close
+                {t("close")}
               </button>
             </div>
           </div>,
