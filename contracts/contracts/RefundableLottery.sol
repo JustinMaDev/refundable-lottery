@@ -148,6 +148,8 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
   function buyTicketWithChips(uint _ticketNumber) public {
     require(getCurRoundState() == RoundState.PLAYING, "The current round is not playing");    
     require(_ticketNumber >= 0 && _ticketNumber <= TICKET_NUMBER_RANGE, "Invalid ticket number");
+    uint discountedPriceInChips = getDiscountedPriceInChips();
+    require(chipsToken.balanceOf(msg.sender) >= discountedPriceInChips, "Your account does not have enough ChipsToken");
     require(msg.sender == tx.origin, "Only EOA(Externally Owned Account) can call this function");
 
     chipsPurchaseCount[roundNumber] += 1;
@@ -159,7 +161,6 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
     ticketHolders[roundNumber][_ticketNumber].push(msg.sender);
 
     //The directTransferFrom will revert if the player does not have enough ChipsToken.
-    uint discountedPriceInChips = getDiscountedPriceInChips();
     chipsToken.directTransferFrom(msg.sender, address(this), discountedPriceInChips);
     roundChipsBalance[roundNumber] += discountedPriceInChips;
 
