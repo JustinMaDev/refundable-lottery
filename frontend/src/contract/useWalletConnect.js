@@ -38,8 +38,14 @@ export function WalletConnectWrapper({ children }) {
   
   useEffect(() => {
     console.log("useEffect isConnected: ", isConnected);
+
     if (isConnected && !provider) {
       console.log("create Web3Provider: ", isConnected);
+
+      if(!Contract.setNetworkByChainId(walletProvider.chainId)){
+        return;
+      }
+      
       const ethersProvider = new ethers.providers.Web3Provider(walletProvider);
       const signer = ethersProvider.getSigner();
       setProvider(ethersProvider);
@@ -52,6 +58,7 @@ export function WalletConnectWrapper({ children }) {
     }
     if(!isConnected){
       lotteryContract?.removeAllListeners();
+      chipsContract?.removeAllListeners();
       setProvider(null);
       setLotteryContract(null);
     }
