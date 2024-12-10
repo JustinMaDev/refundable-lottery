@@ -44,7 +44,7 @@ const useExchange = () => {
 
     const listen = async () => {
       chipsContract.on("BuyChips", (buyer, ethAmount, chipsAmount, liquidityPoolEther, liquidityPoolChips, managerFee, event) => {
-        if(buyer.upperCase() === account.upperCase()){
+        if(buyer.toUpperCase() === account.toUpperCase()){
           fetchStaticData();
         }
         fetchDynamicData();

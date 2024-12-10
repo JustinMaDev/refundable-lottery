@@ -65,7 +65,7 @@ const useLotteryData = () => {
       roundPeriod = globalConfig[7];
       
       setTicketPriceInEther(`${toEther(priceInEther)}ETH`);
-      setTicketPriceInChips(`${parseFloat(toEther(priceInChips)).toFixed(0)}CHIP`);
+      setTicketPriceInChips(`${toEther(priceInChips, 0)}CHIP`);
       setChipsDiscount(chipsDiscountRate);
       setTicketMaxNumber(ticketNumberRange);
     } catch (error) {
@@ -139,7 +139,7 @@ const useLotteryData = () => {
         if (currentBlock > latestBlock) {
           const curState = await lotteryContract.getCurRoundState();
           if (curState !== curRoundState)
-            setCurRoundState(RoundState[curState]);
+            fetchCurRoundData();
           latestBlock = currentBlock;
         }
       }, 12000); //Poll every 12 seconds

@@ -60,6 +60,8 @@ const ExchangePortal = () => {
         // Sell chips to ETH
         await chipsContract.sellChips(toWei(fromValue));
       }
+      setFromValue("0.0");
+      setToValue("0.0");
     }catch(error){
       runtimeErrorPortalRef.current.open(error);
     }

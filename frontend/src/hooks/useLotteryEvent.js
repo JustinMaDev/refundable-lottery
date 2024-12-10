@@ -8,7 +8,7 @@ function formatBuyTicketEvent(event) {
     ticketNumber: event.args.ticketNumber.toString(),
     ticketNumberHex: `(0x${toHex(event.args.ticketNumber).slice(2).toUpperCase()})`,
     player: shortenString(event.args.player),
-    amount: toEther(event.args.amount)+ (event.args.inChips ? " Chips" : " ETH"),
+    amount: event.args.inChips ? `${toEther(event.args.amount, 0)} Chips` : `${toEther(event.args.amount)} ETH`,
     blockNumber: event.blockNumber.toString(),
     txLink: Contract.NETWORK.blockExplorerTx + event.transactionHash,
     addrLink: Contract.NETWORK.blockExplorerAddress + event.args.player,
