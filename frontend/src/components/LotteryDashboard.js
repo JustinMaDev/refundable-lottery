@@ -101,11 +101,11 @@ const LotteryDashboard = () => {
 
       <div className="flex justify-around items-center bg-gray-800 p-4 rounded-lg mb-8">
         <div className="text-center">
-          <h3 className="text-gray-400 text-sm">{t("your_ether_tickets")}</h3>
+          <h3 className="text-gray-400 text-sm">{t("my_ether_tickets")}</h3>
           <p className="text-2xl font-bold">{holderEtherTickets}</p>
         </div>
         <div className="text-center">
-          <h3 className="text-gray-400 text-sm">{t("your_chips_tickets")}</h3>
+          <h3 className="text-gray-400 text-sm">{t("my_chips_tickets")}</h3>
           <p className="text-2xl font-bold">{holderChipsTickets}</p>
         </div>
       </div>

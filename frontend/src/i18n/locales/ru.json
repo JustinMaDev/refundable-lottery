@@ -68,8 +68,8 @@
     "ticket_price": "Цена билета",
     "total_tickets": "Общее количество билетов",
     "prize_pool": "🥇 Призовой фонд",
-    "your_ether_tickets": "Ваши билеты на эфир",
-    "your_chips_tickets": "Ваши билеты Chips",
+    "my_ether_tickets": "Мои билеты ETH",
+    "my_chips_tickets": "Мои билеты CHIP",
     "using": "Использование",
     "fifty_percent_off_with_chips": "50% скидка с Chips",
 

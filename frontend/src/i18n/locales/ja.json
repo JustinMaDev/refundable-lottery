@@ -68,8 +68,8 @@
     "ticket_price": "チケット価格",
     "total_tickets": "合計チケット数",
     "prize_pool": "🥇 賞金プール",
-    "your_ether_tickets": "あなたの Ether チケット",
-    "your_chips_tickets": "あなたの Chips チケット",
+    "my_ether_tickets": "私のETHチケット",
+    "my_chips_tickets": "私のCHIPチケット",
     "using": "使用中",
     "fifty_percent_off_with_chips": "Chips 使用で 50% 割引",
 

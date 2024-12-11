@@ -71,8 +71,8 @@
     "ticket_price": "彩票价格",
     "total_tickets": "总票数",
     "prize_pool": "🥇 奖池",
-    "your_ether_tickets": "您用ETH买的彩票",
-    "your_chips_tickets": "您用筹码买的彩票",
+    "my_ether_tickets": "我的 ETH 彩票",
+    "my_chips_tickets": "我的 CHIP 彩票",
     "using": "用",
     "fifty_percent_off_with_chips": "用筹码半价购买",
 
