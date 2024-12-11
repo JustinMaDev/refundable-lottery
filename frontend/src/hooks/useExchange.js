@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { useWalletConnect} from '../contract';
 import { toWei, toEther, shortenString } from '../utils';
-import { parse } from "postcss";
-import { chips } from "@reown/appkit/networks";
 
 const useExchange = () => {
   const { account, provider, isConnected, chipsContract} = useWalletConnect();
@@ -31,9 +29,9 @@ const useExchange = () => {
 
     const fetchDynamicData = async () => {
       console.log("sellPriceData", toWei("1").toString());
-      const sellPriceData = await chipsContract.calcSellPrice(toWei("1000"));
+      const sellPriceData = await chipsContract.calcSellPrice(toWei("100"));
       const ethToTransfer = sellPriceData[0];
-      const managerFee = sellPriceData[1];
+      //const managerFee = sellPriceData[1];
       
       const ethPool = await chipsContract.liquidityPoolEther();
       const chipsPool = await chipsContract.liquidityPoolChips();

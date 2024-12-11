@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import "./App.css";
 import { WalletConnectWrapper } from "./contract";
 import Navbar from "./components/Navbar";

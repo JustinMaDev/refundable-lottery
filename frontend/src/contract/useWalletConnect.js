@@ -10,7 +10,6 @@ const WalletConnectContext = createContext();
 export function WalletConnectWrapper({ children }) {
   const [account, setAccount] = useState(null);
   const [provider, setProvider] = useState(null);
-  const [chainId, setChainId] = useState(null);
   const [lotteryContract, setLotteryContract] = useState(null);
   const [chipsContract, setChipsContract] = useState(null);
 
@@ -81,7 +80,7 @@ export function WalletConnectWrapper({ children }) {
   };
 
   return (
-    <WalletConnectContext.Provider value={{ chainId, account, provider, isConnected, connect, lotteryContract, chipsContract}}>
+    <WalletConnectContext.Provider value={{ account, provider, isConnected, connect, lotteryContract, chipsContract}}>
       {children}
     </WalletConnectContext.Provider>
   );
