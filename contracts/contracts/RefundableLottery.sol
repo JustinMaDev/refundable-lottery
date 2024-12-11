@@ -32,7 +32,7 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
   uint public constant TICKET_PRICE_IN_ETHER = 0.01 ether;
 
   // Ticket number range [0, 65535]
-  uint public constant TICKET_NUMBER_RANGE = 15;//65535; //ALERT: Change to 15 for testing
+  uint public constant TICKET_NUMBER_RANGE = 65535;
 
   // 1000 chips == 1 eth
   uint public constant CHIPS_PRICE_PER_ETHER = 1000;
@@ -47,10 +47,11 @@ contract RefundableLottery is VRFConsumerBaseV2Plus {
   // In a round, the number of players using ChipsToken should be less than 50% of the total players. 
   uint public constant MAX_PARTICIPATE_RATE_USING_CHIPS = 50;
 
-  // The period of each round by blocks, about 1.5 hours.
-  uint public constant ROUND_PERIOD = 100;//1000; //ALERT: Change to 100 for testing
+  // The period of each round by blocks
+  uint public constant ROUND_PERIOD = 1000;
 
   uint public constant REWARD_CHIPS_FOR_OPERATOR = 1 ether;
+  
   // The manager of the contract takes the 1% management fee
   address payable public immutable manager;
   
