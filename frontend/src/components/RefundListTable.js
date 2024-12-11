@@ -5,8 +5,8 @@ import { useTranslation } from "react-i18next";
 import RuntimeErrorPortal from "./RuntimeErrorPortal";
 
 const RefundListTable = ({ listData }) => {
-  const { t, i18n } = useTranslation();
-  const { account, provider, isConnected, lotteryContract } = useWalletConnect();
+  const { t } = useTranslation();
+  const { provider, isConnected, lotteryContract } = useWalletConnect();
   const [roundNumber, setRoundNumber] = useState("");
   const runtimeErrorPortalRef = useRef();
 

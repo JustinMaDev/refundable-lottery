@@ -55,13 +55,13 @@ const useLotteryData = () => {
     try {
       if (!provider || !isConnected) return;      
       const globalConfig = await lotteryContract.getGlobalConfig();
-      const managmentFee = globalConfig[0];
+      //const managmentFee = globalConfig[0];
       const priceInEther = globalConfig[1];
       const ticketNumberRange = globalConfig[2];
-      const chipsPricePerEther = globalConfig[3];
+      //const chipsPricePerEther = globalConfig[3];
       const chipsDiscountRate = globalConfig[4];
       const priceInChips = globalConfig[5];
-      const maxParticipateRateInChips = globalConfig[6];
+      //const maxParticipateRateInChips = globalConfig[6];
       roundPeriod = globalConfig[7];
       
       setTicketPriceInEther(`${toEther(priceInEther)}ETH`);
@@ -78,7 +78,7 @@ const useLotteryData = () => {
       if (!provider || !isConnected) return;
       //Get current round data
       const roundDetail = await lotteryContract.getRoundDetail(0);
-      const roundNumber = roundDetail.roundNumber;
+      //const roundNumber = roundDetail.roundNumber;
       const roundInfo = roundDetail.info;
       const curState = roundDetail.realtimeState;
 

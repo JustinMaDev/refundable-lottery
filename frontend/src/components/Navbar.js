@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 
 function Navbar() {
-  const { t, i18n } = useTranslation();
-  const { chainId, account, provider, isConnected, connect } = useWalletConnect();
+  const { t } = useTranslation();
+  const { isConnected, connect } = useWalletConnect();
 
   return (
     <div className="navbar px-4 shadow-md">

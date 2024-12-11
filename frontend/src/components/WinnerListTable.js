@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 const WinnerListTable = ({ listData }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   return (
     <div className="overflow-x-auto mt-4 h-[calc(100vh-11rem)]">
       <table className="table w-full">

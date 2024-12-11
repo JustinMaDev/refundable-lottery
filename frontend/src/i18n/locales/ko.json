@@ -16,7 +16,6 @@
     "play": "플레이",
 
     "refundable_lottery": "환불 가능한 복권",
-    "go_to_github": "GitHub로 이동하여 스마트 계약 코드를 검토하세요",
     "connect_wallet": "지갑 연결",
     "wallet_connected": "지갑이 연결되었습니다",
 
@@ -74,7 +73,9 @@
     "using": "사용 중",
     "fifty_percent_off_with_chips": "Chips 사용 시 50% 할인",
     
-    "go_to_blockchain_explorer": "블록체인 탐색기로 이동하여 스마트 계약 코드를 확인하세요",
+    "go_to_github": "Github으로 이동하여 이 프로젝트의 모든 코드를 검토하세요",
+    "review_refundable_lottery": "블록체인 탐색기로 이동하여 RefundableLottery 스마트 계약 코드를 검토하세요",
+    "review_chips_token": "블록체인 탐색기로 이동하여 ChipsToken 스마트 계약 코드를 검토하세요",
     "go_to_twitter": "Twitter/X로 이동하여 팔로우하세요",
     "go_to_telegram": "Telegram으로 이동하여 그룹에 참여하세요",
     "go_to_facebook": "Facebook으로 이동하여 페이지를 좋아하세요",

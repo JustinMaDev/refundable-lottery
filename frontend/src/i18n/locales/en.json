@@ -16,7 +16,6 @@
     "play": "Play",
     
     "refundable_lottery": "Refundable Lottery",
-    "go_to_github":"Go to Gitthub and review the smart contract code",
     "connect_wallet": "Connect Wallet",
     "wallet_connected": "Wallet Connected",
 
@@ -76,8 +75,10 @@
     "your_chips_tickets": "Your CHIP tickets",
     "using": "Using",
     "fifty_percent_off_with_chips": "50% Off with Chips",
-
-    "go_to_blockchain_explorer": "Go to Blockchain Explorer and review the smart contract code",
+    
+    "go_to_github":"Go to Github and review all code of this project", 
+    "review_refundable_lottery": "Go to Blockchain Explorer and review the code of RefundableLottery smart contract",
+    "review_chips_token": "Go to Blockchain Explorer and review the code of ChipsToken smart contract",
     "go_to_twitter": "Go to Twitter/X and follow us",
     "go_to_telegram": "Go to Telegram and join our group",
     "go_to_facebook": "Go to Facebook and like our page",

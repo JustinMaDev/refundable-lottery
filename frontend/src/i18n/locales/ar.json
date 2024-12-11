@@ -16,7 +16,6 @@
     "play": "لعب",
 
     "refundable_lottery": "اليانصيب القابل للاسترداد",
-    "go_to_github": "انتقل إلى GitHub وراجع كود العقد الذكي",
     "connect_wallet": "توصيل المحفظة",
     "wallet_connected": "تم توصيل المحفظة",
 
@@ -74,7 +73,9 @@
     "using": "يستخدم",
     "fifty_percent_off_with_chips": "خصم 50٪ مع Chips",
 
-    "go_to_blockchain_explorer": "انتقل إلى مستكشف البلوكشين وراجع كود العقد الذكي",
+    "go_to_github": "انتقل إلى Github وراجع جميع كود هذا المشروع",
+    "review_refundable_lottery": "انتقل إلى مستكشف البلوكشين وراجع كود عقد RefundableLottery الذكي",
+    "review_chips_token": "انتقل إلى مستكشف البلوكشين وراجع كود عقد ChipsToken الذكي",
     "go_to_twitter": "انتقل إلى Twitter/X وتابعنا",
     "go_to_telegram": "انتقل إلى Telegram وانضم إلى مجموعتنا",
     "go_to_facebook": "انتقل إلى Facebook وأعجب بصفحتنا",

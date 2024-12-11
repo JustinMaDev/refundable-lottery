@@ -120,7 +120,7 @@ const useLotteryEvent = () => {
         await lotteryContract.on("BuyTicket", (roundNumber, player, ticketNumber, amount, inChips, event) => {
           const formattedEvent = formatBuyTicketEvent(event);
           setAllTickets((prevEvents) => [formattedEvent, ...prevEvents]);
-          if(player.toUpperCase() == account.toUpperCase()){
+          if(player.toUpperCase() === account.toUpperCase()){
             setPlayerTickets((prevEvents) => [formattedEvent, ...prevEvents]);
           }
         });

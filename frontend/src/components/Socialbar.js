@@ -8,9 +8,9 @@ const Socialbar = () => {
   const chipsContractLink = Contract.NETWORK?.blockExplorerAddress + Contract.ChipsToken?.address;
   const twitter = "https://x.com/hashtag/RefundableLottery";
   const telegram = "https://t.me/refundable_lottery";
-  const facebook = "https://facebook.com";
-  const thread = "https://thread.com";
-  const discord = "https://discord.com";
+  //const facebook = "https://facebook.com";
+  //const thread = "https://thread.com";
+  //const discord = "https://discord.com";
 
   return (
     <div className="flex flex-wrap justify-evenly items-center mt-16 gap-4 w-full">
@@ -18,10 +18,10 @@ const Socialbar = () => {
           <img src="/github-mark-white.png" alt="Github" className="w-6 h-6 " title={t("go_to_github")} />
         </a>
         <a href={lotteryContractLink} target="_blank" rel="noopener noreferrer">
-          <img src="/blockchain_explorer.png" alt="Blockchain Explorer" className="w-6 h-6 " title={t("go_to_blockchain_explorer")} />
+          <img src="/blockchain_explorer.png" alt="Blockchain Explorer" className="w-6 h-6 " title={t("review_refundable_lottery")} />
         </a>
         <a href={chipsContractLink} target="_blank" rel="noopener noreferrer">
-          <img src="/chips-logo.svg" alt="Blockchain Explorer" className="w-6 h-6 " title={t("go_to_blockchain_explorer")} />
+          <img src="/chips-logo.svg" alt="Blockchain Explorer" className="w-6 h-6 " title={t("review_chips_token")} />
         </a>
         <a href={twitter} target="_blank" rel="noopener noreferrer">
           <img src="/x.png" alt="X logo" className="w-6 h-6" title={t("go_to_twitter")} />

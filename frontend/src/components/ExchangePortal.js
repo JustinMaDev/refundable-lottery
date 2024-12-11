@@ -7,13 +7,12 @@ import { useWalletConnect } from "../contract";
 import { toWei, toEther } from "../utils";
 
 const ExchangePortal = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [fromValue, setFromValue] = useState("");
   const [toValue, setToValue] = useState("");
-  const [slippageTolerance, setSlippageTolerance] = useState("0.5");
   const { shortenAccount, etherBalance, chipsBalance, chipsBuyPrice, chipsSellPrice, ethLiquidityPool, chipsLiquidityPool } = useExchange();
-  const { account, provider, isConnected, chipsContract } = useWalletConnect();
+  const { chipsContract } = useWalletConnect();
 
   const runtimeErrorPortalRef = useRef();
 
@@ -34,9 +33,6 @@ const ExchangePortal = () => {
     setToValue("");
   };
 
-  const info = {
-
-  }
   async function handleFromValueBlur() {
     console.log("handleFromValueBlur!!!!!!!!", fromValue, "");
     if (fromToken.symbol === "ETH") {

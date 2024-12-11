@@ -7,7 +7,7 @@ import RollingRecordTable from "./RollingRecordTable";
 import { useTranslation } from "react-i18next";
 
 const TicketHistory = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { allTickets, playerTickets, playerRefund, winnerList, rollingRecords} = useLotteryEvent();
   const [activeTab, setActiveTab] = useState("allTickets");
   const [activeData, setActiveData] = useState([]);

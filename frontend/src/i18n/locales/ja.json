@@ -16,7 +16,6 @@
     "play": "プレイ",
 
     "refundable_lottery": "返金可能な宝くじ",
-    "go_to_github": "GitHub に移動してスマートコントラクトコードを確認してください",
     "connect_wallet": "ウォレットを接続する",
     "wallet_connected": "ウォレットが接続されました",
 
@@ -74,7 +73,9 @@
     "using": "使用中",
     "fifty_percent_off_with_chips": "Chips 使用で 50% 割引",
 
-    "go_to_blockchain_explorer": "ブロックチェーンエクスプローラーに移動してスマートコントラクトコードを確認してください",
+    "go_to_github": "Githubにアクセスして、このプロジェクトのすべてのコードを確認してください",
+    "review_refundable_lottery": "ブロックチェーンエクスプローラーにアクセスして、RefundableLotteryスマートコントラクトのコードを確認してください",
+    "review_chips_token": "ブロックチェーンエクスプローラーにアクセスして、ChipsTokenスマートコントラクトのコードを確認してください",
     "go_to_twitter": "Twitter/X に移動してフォローしてください",
     "go_to_telegram": "Telegram に移動してグループに参加してください",
     "go_to_facebook": "Facebook に移動して私たちのページに「いいね！」をしてください",

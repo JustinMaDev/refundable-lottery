@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { useTranslation } from "react-i18next";
 
 const RulePortal = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   return (

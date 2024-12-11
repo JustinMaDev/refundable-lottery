@@ -16,7 +16,6 @@
     "play": "开始游戏",
 
     "refundable_lottery": "可退款型彩票",
-    "go_to_github": "前往 GitHub 查看智能合约代码",
     "connect_wallet": "连接钱包",
     "wallet_connected": "钱包已连接",
 
@@ -76,7 +75,10 @@
     "your_chips_tickets": "您用筹码买的彩票",
     "using": "用",
     "fifty_percent_off_with_chips": "用筹码半价购买",
-    "go_to_blockchain_explorer": "前往区块链浏览器并查看智能合约代码",
+
+    "go_to_github": "前往 Github 查看此项目的所有代码",
+    "review_refundable_lottery": "前往区块链浏览器查看 RefundableLottery 智能合约的代码",
+    "review_chips_token": "前往区块链浏览器查看 ChipsToken 智能合约的代码",
     "go_to_twitter": "前往 Twitter/X 并关注我们",
     "go_to_telegram": "前往 Telegram 并加入我们的群组",
     "go_to_facebook": "前往 Facebook ",

@@ -16,7 +16,6 @@
     "play": "Играть",
 
     "refundable_lottery": "Возвратная лотерея",
-    "go_to_github": "Перейдите на GitHub и просмотрите код смарт-контракта",
     "connect_wallet": "Подключить кошелек",
     "wallet_connected": "Кошелек подключен",
 
@@ -74,7 +73,9 @@
     "using": "Использование",
     "fifty_percent_off_with_chips": "50% скидка с Chips",
 
-    "go_to_blockchain_explorer": "Перейдите в блокчейн-эксплорер и проверьте код смарт-контракта",
+    "go_to_github": "Перейдите на Github, чтобы просмотреть весь код этого проекта",
+    "review_refundable_lottery": "Перейдите в обозреватель блокчейна и изучите код смарт-контракта RefundableLottery",
+    "review_chips_token": "Перейдите в обозреватель блокчейна и изучите код смарт-контракта ChipsToken",
     "go_to_twitter": "Перейдите в Twitter/X и подпишитесь на нас",
     "go_to_telegram": "Перейдите в Telegram и присоединяйтесь к нашей группе",
     "go_to_facebook": "Перейдите в Facebook и поставьте лайк нашей странице",

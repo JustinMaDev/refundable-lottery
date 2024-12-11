@@ -16,7 +16,6 @@
     "play": "Spielen",
 
     "refundable_lottery": "Erstattungsfähige Lotterie",
-    "go_to_github": "Gehen Sie zu GitHub und überprüfen Sie den Smart Contract-Code",
     "connect_wallet": "Wallet verbinden",
     "wallet_connected": "Wallet verbunden",
 
@@ -74,7 +73,9 @@
     "using": "Verwendung",
     "fifty_percent_off_with_chips": "50 % Rabatt mit Chips",
 
-    "go_to_blockchain_explorer": "Gehen Sie zum Blockchain-Explorer und überprüfen Sie den Smart-Contract-Code",
+    "go_to_github": "Gehen Sie zu Github, um den gesamten Code dieses Projekts zu überprüfen",
+    "review_refundable_lottery": "Gehen Sie zum Blockchain-Explorer und überprüfen Sie den Code des RefundableLottery-Smart-Contracts",
+    "review_chips_token": "Gehen Sie zum Blockchain-Explorer und überprüfen Sie den Code des ChipsToken-Smart-Contracts",
     "go_to_twitter": "Gehen Sie zu Twitter/X und folgen Sie uns",
     "go_to_telegram": "Gehen Sie zu Telegram und treten Sie unserer Gruppe bei",
     "go_to_facebook": "Gehen Sie zu Facebook und liken Sie unsere Seite",
