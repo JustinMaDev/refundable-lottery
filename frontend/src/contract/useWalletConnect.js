@@ -14,7 +14,7 @@ export function WalletConnectWrapper({ children }) {
   const [chipsContract, setChipsContract] = useState(null);
 
   const projectId = process.env.REACT_APP_REOWN_PROJECT_ID;
-  const networks = [sepolia, mainnet];
+  const networks = [mainnet];
   const metadata = {
     name: 'RefundableLottery',
     description: 'Refundable Lottery',

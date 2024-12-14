@@ -1,10 +1,13 @@
 {
   "mainnet": {
     "deployer": "0x2FeDe04FBd5658Fb1299FB584E4a1D2b4887DF89",
-    "subscriptionId": "",
+    "subscriptionId": "$BigNum:93881157730383662522042378182749646686711050008986943674975972594789367923744",
     "linkToken": "",
     "chainlinkVRF": "0xD7f86b4b8Cae7D942340FF628F82735b7a20893a",
-    "keyHash": "0x8077df514608a09f83e4e8d300645594e5d7234665448ba83f51a50f842bd3d9"
+    "keyHash": "0x8077df514608a09f83e4e8d300645594e5d7234665448ba83f51a50f842bd3d9",
+    "nonce": 3,
+    "ChipsToken": "0x024D62dd14980710B79f9918792efDaf7FfcD6Bc",
+    "RefundableLottery": "0x89466fE99edF79b6B3F1836F0eCB3789a77A221a"
   },
   "sepolia": {
     "deployer": "0x2FeDe04FBd5658Fb1299FB584E4a1D2b4887DF89",

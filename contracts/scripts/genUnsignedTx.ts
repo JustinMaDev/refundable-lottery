@@ -27,7 +27,7 @@ async function genDeploymentTx(operation) {
   let realArgs = getRealArg(operation);
   
   console.log("genDeploymentTx name:", operation.name, "genDeploymentTx args:", realArgs);
-  const unsignedTx = await contract.getDeployTransaction.apply(null, realArgs);
+  const unsignedTx = await contract.getDeployTransaction(...realArgs);
   const feeData = await ethers.provider.getFeeData();
   const gasEstimate = await ethers.provider.estimateGas({
     from: env.deployer,

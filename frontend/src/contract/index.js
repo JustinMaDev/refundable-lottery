@@ -4,6 +4,27 @@ import { type } from '@testing-library/user-event/dist/type';
 
 
 const ContractConfig = {
+  1:{
+    NETWORK:{
+      chainId: '0x1',
+      chainName: 'Ethereum Mainnet',
+      blockExplorer: 'https://etherscan.io/',
+      blockExplorerTx: 'https://etherscan.io/tx/',
+      blockExplorerAddress: 'https://etherscan.io/address/',
+    },
+    ChipsToken:{
+      contractName:ChipsTokenAbi.contractName,
+      address: "0x024D62dd14980710B79f9918792efDaf7FfcD6Bc",
+      creationBlockNumber: 21397657,
+      abi:ChipsTokenAbi.abi,
+    },
+    RefundableLottery:{
+      contractName:RefundableLotteryAbi.contractName,
+      address: "0x89466fE99edF79b6B3F1836F0eCB3789a77A221a",
+      creationBlockNumber: 21397726,
+      abi:RefundableLotteryAbi.abi,
+    },
+  },
   11155111:{
     NETWORK:{
       chainId: '0xaa36a7',
