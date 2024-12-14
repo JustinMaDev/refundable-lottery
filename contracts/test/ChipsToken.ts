@@ -242,13 +242,12 @@ describe("ChipsToken", function () {
 
     it("Sell chips by non-owner", async function () {
       const amount = ethers.parseEther("1");
-      const [sellPrice, ethAmount] = await chipsToken.calcSellPrice(amount);
+      const [ethToTransfer, managementFee] = await chipsToken.calcSellPrice(amount);
       
       const ethBalanceBefore = await chipsToken.runner?.provider?.getBalance(otherAccount.address);
       const chipsBalanceBefore = await chipsToken.balanceOf(otherAccount.address);
       const managementFeeRate = await chipsToken.MANAGER_FEE_RATE();
-      const managerFee = toBigInt(ethAmount) * managementFeeRate / BigInt(100);
-
+      
       const tx = await chipsToken.connect(otherAccount).sellChips(amount);
       const receipt = await tx.wait();
       metrix.push({Operation: "sellChips", GasUsed: receipt.gasUsed});
@@ -257,13 +256,12 @@ describe("ChipsToken", function () {
       const ethBalanceAfter = await chipsToken.runner?.provider?.getBalance(otherAccount.address);
       const chipsBalanceAfter = await chipsToken.balanceOf(otherAccount.address);
       expect(chipsBalanceAfter).to.equal(chipsBalanceBefore - amount);
-      expect(ethBalanceAfter).to.equal(ethBalanceBefore + ethAmount - managerFee - transactionCost);
-      console.log("sellPrice(/ether): ", sellPrice.toString()); 
+      expect(ethBalanceAfter).to.equal(ethBalanceBefore + ethToTransfer - transactionCost);
     });
 
     it("Sell chips and check liquidity pool state", async function () {
       const amount = ethers.parseEther("1");
-      const [sellPrice, ethAmount] = await chipsToken.calcSellPrice(amount);
+      const [ethToTransfer, managementFee] = await chipsToken.calcSellPrice(amount);
       
       const managementFeeRate = await chipsToken.MANAGER_FEE_RATE();
       
@@ -278,9 +276,9 @@ describe("ChipsToken", function () {
       const liquidityPoolChipsAfter = await chipsToken.liquidityPoolChips();
       const contractBalanceAfter = await chipsToken.runner?.provider?.getBalance(chipsToken.getAddress());
 
-      expect(liquidityPoolEtherAfter).to.equal(liquidityPoolEtherBefore - ethAmount);
+      expect(liquidityPoolEtherAfter).to.equal(liquidityPoolEtherBefore - ethToTransfer - managementFee);
       expect(liquidityPoolChipsAfter).to.equal(liquidityPoolChipsBefore + amount);
-      expect(contractBalanceAfter).to.equal(contractBalanceBefore - ethAmount);
+      expect(contractBalanceAfter).to.equal(contractBalanceBefore - ethToTransfer - managementFee);
       expect(liquidityPoolEtherAfter).to.equal(contractBalanceAfter);
     });
 
@@ -294,7 +292,7 @@ describe("ChipsToken", function () {
     it("Sell chips as much as liquidityPoolChips", async function () {
       const liquidityPoolChips = await chipsToken.liquidityPoolChips();
 
-      const [sellPrice, ethAmount] = await chipsToken.calcSellPrice(liquidityPoolChips);
+      const [ethToTransfer, managementFee] = await chipsToken.calcSellPrice(liquidityPoolChips);
       const liquidityPoolEtherBefore = await chipsToken.liquidityPoolEther();
       const liquidityPoolChipsBefore = await chipsToken.liquidityPoolChips();
 
@@ -303,10 +301,8 @@ describe("ChipsToken", function () {
       const liquidityPoolEtherAfter = await chipsToken.liquidityPoolEther();
       const liquidityPoolChipsAfter = await chipsToken.liquidityPoolChips();
 
-      expect(liquidityPoolEtherAfter).to.equal(liquidityPoolEtherBefore - ethAmount);
+      expect(liquidityPoolEtherAfter).to.equal(liquidityPoolEtherBefore - ethToTransfer - managementFee);
       expect(liquidityPoolChipsAfter).to.equal(liquidityPoolChipsBefore + liquidityPoolChips);
-
-      console.log("sellPrice(/ether): ", sellPrice.toString());
     });
   });
 });

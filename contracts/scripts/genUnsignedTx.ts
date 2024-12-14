@@ -1,5 +1,4 @@
 import hardhat, { ethers } from "hardhat";
-import { ethers as ethersJs } from "ethers";
 import fs from "fs";
 import config from "./config.json";
 import operations from "./operations.json";
@@ -25,10 +24,10 @@ function getRealArg(operation) {
 
 async function genDeploymentTx(operation) {
   const contract = await ethers.getContractFactory(operation.name);
-  let realArgs: [...any[]] = getRealArg(operation);
+  let realArgs = getRealArg(operation);
   
   console.log("genDeploymentTx name:", operation.name, "genDeploymentTx args:", realArgs);
-  const unsignedTx = await contract.getDeployTransaction(...realArgs);
+  const unsignedTx = await contract.getDeployTransaction.apply(null, realArgs);
   const feeData = await ethers.provider.getFeeData();
   const gasEstimate = await ethers.provider.estimateGas({
     from: env.deployer,
