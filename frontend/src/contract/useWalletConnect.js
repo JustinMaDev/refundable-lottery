@@ -40,21 +40,25 @@ export function WalletConnectWrapper({ children }) {
 
     if (isConnected && !provider) {
       console.log("create Web3Provider: ", isConnected);
-
-      if(!Contract.setNetworkByChainId(walletProvider.chainId)){
-        return;
-      }
       
-      const ethersProvider = new ethers.providers.Web3Provider(walletProvider);
-      const signer = ethersProvider.getSigner();
-      setProvider(ethersProvider);
-      
-      const lottery = new ethers.Contract(Contract.RefundableLottery.address, Contract.RefundableLottery.abi, signer);
-      setLotteryContract(lottery);
+      walletProvider.request({ method: 'eth_chainId' }).then(chainId => {
+        console.log("chainId in request: ", chainId);
+        if(!Contract.setNetworkByChainId(chainId)){
+          return;
+        }
 
-      const chips = new ethers.Contract(Contract.ChipsToken.address, Contract.ChipsToken.abi, signer);
-      setChipsContract(chips);
+        const ethersProvider = new ethers.providers.Web3Provider(walletProvider);
+        const signer = ethersProvider.getSigner();
+        setProvider(ethersProvider);
+        
+        const lottery = new ethers.Contract(Contract.RefundableLottery.address, Contract.RefundableLottery.abi, signer);
+        setLotteryContract(lottery);
+
+        const chips = new ethers.Contract(Contract.ChipsToken.address, Contract.ChipsToken.abi, signer);
+        setChipsContract(chips);
+      });
     }
+
     if(!isConnected){
       lotteryContract?.removeAllListeners();
       chipsContract?.removeAllListeners();
